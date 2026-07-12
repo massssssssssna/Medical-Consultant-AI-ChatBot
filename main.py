@@ -29,23 +29,23 @@ CRITICAL RULE: You are an AI, not a real doctor. If a user describes severe symp
 
 @app.post("/api/chat")
 async def chat_with_doctor(request: ChatRequest):
-    # Dynamic temperature adjustment:
-    # If the user asks about severe symptoms or asks for precise/technical info (e.g. dosages),
-    # we lower the temperature to 0.2 (Emergency / Precise Mode) for safer and more factual answers.
-    # Otherwise, we use a higher temperature (default 0.8) for a friendly and conversational response.
+    # Temperature is controlled by the frontend slider and kept within 0.1 to 1.0.
+    # Lower values produce stricter, more serious answers.
     precise_keywords = [
         "emergency", "chest pain", "bleeding", "severe", "heart", "breathing",
         "stroke", "dosage", "dose", "medicine", "side effect", "coughing blood",
         "accident", "paralysis"
     ]
     
-    # Check if any precise keyword is in the last message (case-insensitive)
+    # Check if any precise keyword is in the last message (case-insensitive).
+    # Severe symptoms always force the model into the most serious setting.
     last_message = request.history[-1].content if request.history else ""
     message_lower = last_message.lower()
+    requested_temperature = request.temperature if request.temperature is not None else 0.8
+    temperature = max(0.1, min(1.0, requested_temperature))
+
     if any(keyword in message_lower for keyword in precise_keywords):
-        temperature = 0.2
-    else:
-        temperature = request.temperature  # fallback to client default (0.8)
+        temperature = 0.1
 
     # Groq API ko call bhejna with full conversation history
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
