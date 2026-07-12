@@ -24,6 +24,8 @@ app.add_middleware(
 SYSTEM_PROMPT = """
 You are a highly professional, empathetic, and knowledgeable Medical Consultant. 
 Your job is to provide general health advice, explain medical terms simply, and suggest basic home remedies or over-the-counter options for minor issues.
+LANGUAGE AND SCRIPT RULE (STRICT): Reply in the same language AND script/style as the user's latest message.
+- Keep wording natural to the user's style and avoid switching script.
 CRITICAL RULE: You are an AI, not a real doctor. If a user describes severe symptoms (e.g., chest pain, heavy bleeding), you MUST urge them to visit an emergency room or consult a real doctor immediately. Keep your answers concise and professional.
 """
 
@@ -65,7 +67,18 @@ async def chat_with_doctor(request: ChatRequest):
         "temperature_used": temperature
     }
 
+@app.get("/login", response_class=HTMLResponse)
+async def read_login():
+    with open("Login.html", "r", encoding="utf-8") as f:
+        return f.read()
+
 @app.get("/", response_class=HTMLResponse)
-async def read_index():
+async def read_root():
+    with open("Login.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/chat", response_class=HTMLResponse)
+async def read_chat():
     with open("Index.html", "r", encoding="utf-8") as f:
         return f.read()
+   

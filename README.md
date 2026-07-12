@@ -61,6 +61,21 @@ Create a file named `.env` in the root folder (this is already ignored by git to
 GROQ_API_KEY=your_actual_groq_api_key_here
 ```
 
+### 2b. Supabase Google Login Setup
+If you want the separate Google login page, create a Supabase project and add your site URL in the Auth settings.
+
+Use these values in `Login.html`:
+```text
+SUPABASE_URL = your_supabase_project_url
+SUPABASE_ANON_KEY = your_supabase_anon_key
+```
+
+In Supabase dashboard:
+1. Go to **Authentication > Providers > Google** and enable Google.
+2. Add your Google OAuth credentials.
+3. Add redirect URLs like `http://127.0.0.1:8000/login` and your deployed domain.
+4. Keep the chat app route separate from the login page.
+
 ### 3. Launching the Application
 #### Windows (Recommended):
 Simply double-click the **`run_server.bat`** file. It will automatically activate the Python virtual environment and run the server.
@@ -74,7 +89,7 @@ Simply double-click the **`run_server.bat`** file. It will automatically activat
 python -m uvicorn main:app --reload --port 8000
 ```
 
-Once running, visit **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your web browser.
+Once running, visit **[http://127.0.0.1:8000](http://127.0.0.1:8000)** for login and **[http://127.0.0.1:8000/chat](http://127.0.0.1:8000/chat)** for the chat app.
 
 ---
 
