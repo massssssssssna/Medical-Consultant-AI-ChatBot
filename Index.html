@@ -92,7 +92,7 @@
     <div id="app-shell" class="flex w-full h-full" style="display:none;">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-white dark:bg-slate-900 flex flex-col border-r border-slate-200 dark:border-slate-800/60 transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-slate-50/80 border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
             
             <!-- Brand -->
             <div class="p-5 pb-4">
@@ -198,10 +198,10 @@
                     <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
                     </div>
                 </div>
             </div>
@@ -210,11 +210,11 @@
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 via-slate-50 dark:via-slate-950 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
                 <div class="max-w-3xl mx-auto flex flex-col items-center pointer-events-auto">
                     
-                    <div class="w-full relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-300 dark:border-slate-800 rounded-[28px] shadow-md dark:shadow-none p-2 pl-4 transition-all focus-within:border-slate-400 dark:focus-within:border-slate-600 focus-within:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:focus-within:shadow-[0_8px_30px_rgb(99,102,241,0.15)] flex items-end gap-2 group transition-colors duration-300">
+                    <div class="w-full relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-lg rounded-2xl transition-all duration-200 p-2 pl-4 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50">
                         
-                        <textarea id="chat-input" class="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed" placeholder="Message E-Clinix..." rows="1"></textarea>
+                        <textarea id="chat-input" class="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed focus:outline-none" placeholder="Message E-Clinix..." rows="1"></textarea>
                         
-                        <button id="btn-send" class="h-11 w-11 md:w-auto md:px-5 rounded-[20px] bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0 shadow-md shadow-blue-500/20 mb-0.5 mr-0.5">
+                        <button id="btn-send" class="h-11 w-11 md:w-auto md:px-5 rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0 shadow-md shadow-blue-500/20 mb-0.5 mr-0.5 cursor-pointer">
                             <span class="hidden md:inline font-outfit">Send</span>
                             <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -465,26 +465,26 @@
                 if (items.length === 0) continue;
 
                 const label = document.createElement("div");
-                label.className = "session-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-2 mt-2";
+                label.className = "session-label text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400 px-3 py-2 mt-2 transition-colors";
                 label.textContent = labels[key];
                 sessionsContainer.appendChild(label);
 
                 items.forEach(s => {
                     const isActive = s.id === currentSessionId;
                     const el = document.createElement("div");
-                    el.className = `session-item group relative flex items-center gap-3 p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all border border-transparent ${isActive ? 'bg-blue-500/10 border-blue-500/20 text-white' : 'hover:bg-white/5 text-slate-300'}`;
+                    el.className = `session-item group relative flex items-center gap-3 p-2.5 rounded-xl text-[13px] cursor-pointer transition-all border border-transparent ${isActive ? 'bg-blue-500/15 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-white font-semibold' : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-medium'}`;
                     
                     el.innerHTML = `
                         <span class="text-sm shrink-0 opacity-70">💬</span>
                         <span class="flex-1 truncate">${escapeHTML(s.title || "New Chat")}</span>
-                        <button class="session-menu-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-white hover:bg-slate-700/50 p-1 rounded transition-all shrink-0" title="Options">
+                        <button class="session-menu-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700/50 p-1 rounded transition-all shrink-0 cursor-pointer" title="Options">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                         </button>
-                        <div class="session-dropdown hidden absolute right-2 top-10 w-36 bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 z-50">
-                            <button class="session-rename w-full text-left px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2">
+                        <div class="session-dropdown hidden absolute right-2 top-10 w-36 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 z-50 transition-colors">
+                            <button class="session-rename w-full text-left px-3 py-2 text-xs font-semibold dark:font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2 cursor-pointer">
                                 <span>✏️</span> Rename
                             </button>
-                            <button class="session-delete w-full text-left px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2">
+                            <button class="session-delete w-full text-left px-3 py-2 text-xs font-semibold dark:font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-colors flex items-center gap-2 cursor-pointer">
                                 <span>🗑️</span> Delete
                             </button>
                         </div>
