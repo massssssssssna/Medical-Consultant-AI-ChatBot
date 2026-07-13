@@ -487,14 +487,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ─── Supabase Config ───
-        const SUPABASE_URL = "https://rsiphzcpueldqlmtffwj.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzaXBoemNwdWVsZHFsbXRmZndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4NDMzNTksImV4cCI6MjA5OTQxOTM1OX0.q2zJWEvvChTfv0MJ7DmEyKKy5aEC9hFWpMtPU1U8o-Y";
-
-        // Persist for chat page access
-        localStorage.setItem("eclinix_supabase_url", SUPABASE_URL);
-        localStorage.setItem("eclinix_supabase_anon_key", SUPABASE_ANON_KEY);
-
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
 
         // ─── DOM Elements ───
         const googleBtn = document.getElementById("google-login-btn");
@@ -590,15 +583,40 @@
             window.location.href = "/chat";
         });
 
-        // ─── Auth State Listener ───
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (session?.user) {
-                showUser(session.user);
-            }
-        });
+        // ─── Initialize App ───
+        async function initApp() {
+            try {
+                const res = await fetch("/api/config");
+                const config = await res.json();
+                const SUPABASE_URL = config.supabase_url;
+                const SUPABASE_ANON_KEY = config.supabase_anon_key;
 
-        // ─── Initialize ───
-        checkSession();
+                if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                    showStatus("Configuration error. Please verify backend env.", "error");
+                    return;
+                }
+
+                // Persist for chat page access
+                localStorage.setItem("eclinix_supabase_url", SUPABASE_URL);
+                localStorage.setItem("eclinix_supabase_anon_key", SUPABASE_ANON_KEY);
+
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                // ─── Auth State Listener ───
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (session?.user) {
+                        showUser(session.user);
+                    }
+                });
+
+                await checkSession();
+            } catch (err) {
+                console.error("Failed to initialize App:", err);
+                showStatus("Connection error loading app config.", "error");
+            }
+        }
+
+        initApp();
     </script>
 </body>
 </html>
