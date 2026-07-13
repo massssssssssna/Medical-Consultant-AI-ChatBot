@@ -19,10 +19,10 @@
     <title>E-Clinix — AI Medical Consultant</title>
     <meta name="description" content="E-Clinix AI Medical Consultant. Get instant, professional health guidance powered by artificial intelligence.">
     
-    <!-- Premium Fonts -->
+    <!-- Premium Healthcare Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,9 +32,23 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        outfit: ['Outfit', 'sans-serif'],
-                    }
+                        sans: ['Inter', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        clinical: {
+                            50: '#F0FDFA',
+                            100: '#CCFBF1',
+                            500: '#14B8A6',
+                            600: '#0D9488',
+                            700: '#0F766E',
+                        },
+                        surface: {
+                            light: '#F9F8F6',
+                            dark: '#0B132B',
+                            card: '#1C2541',
+                        },
+                    },
                 }
             }
         }
@@ -44,7 +58,7 @@
         /* Custom Scrollbars */
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #A0AEC0; border-radius: 6px; }
         
         .sidebar-scroll::-webkit-scrollbar { width: 4px; }
         .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -75,12 +89,12 @@
         .markdown-body em { font-style: italic; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex transition-colors duration-300">
+<body class="bg-surface-light dark:bg-surface-dark text-slate-800 dark:text-slate-100 h-screen overflow-hidden flex transition-colors duration-400 font-sans">
 
     <!-- Auth Loading Overlay -->
-    <div id="auth-loading" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 flex items-center justify-center z-[100] transition-opacity duration-300">
+    <div id="auth-loading" class="fixed inset-0 bg-surface-light dark:bg-surface-dark flex items-center justify-center z-[100] transition-opacity duration-300">
         <div class="flex flex-col items-center gap-4">
-            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
+            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-clinical-500 rounded-full animate-spin"></div>
             <div class="text-sm text-slate-600 dark:text-slate-400 font-medium">Verifying session...</div>
         </div>
     </div>
@@ -92,29 +106,29 @@
     <div id="app-shell" class="flex w-full h-full" style="display:none;">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-slate-50/80 border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-surface-light/90 dark:bg-surface-card/90 border-r border-slate-200/60 dark:border-slate-800/60 flex flex-col transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none backdrop-blur-sm">
             
             <!-- Brand -->
             <div class="p-5 pb-4">
                 <div class="flex items-center gap-3 px-1">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(59,130,246,0.25)] shrink-0">🩺</div>
-                    <span class="font-outfit font-bold text-[19px] text-slate-800 dark:text-slate-100 tracking-tight transition-colors">E-Clinix</span>
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(20,184,166,0.25)] shrink-0">🩺</div>
+                    <span class="font-heading font-bold text-[19px] text-slate-800 dark:text-slate-100 tracking-tight transition-colors">E-Clinix</span>
                 </div>
             </div>
 
-            <!-- AI Mode Selector (Slider + Dynamic UI) -->
-            <div class="px-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
+            <!-- AI Mode Selector -->
+            <div class="px-4 pb-4 border-b border-slate-200/60 dark:border-slate-800/60">
                 <div class="flex items-center justify-between mb-3 px-2">
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Mode</div>
-                    <div id="mode-badge" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-teal-500/20 bg-teal-500/10 transition-colors">
-                        <div id="mode-dot" class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"></div>
-                        <span id="mode-text" class="text-[10px] font-bold text-teal-400">Normal</span>
+                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">AI Mode</div>
+                    <div id="mode-badge" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-clinical-500/20 bg-clinical-500/10 transition-colors">
+                        <div id="mode-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></div>
+                        <span id="mode-text" class="text-[10px] font-bold text-clinical-600 dark:text-clinical-500">Normal</span>
                     </div>
                 </div>
                 
                 <div class="px-2">
-                    <input type="range" id="temp-slider" min="0" max="1" step="0.1" value="0.6" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none transition-colors">
-                    <div class="flex justify-between text-[10px] font-medium text-slate-500 mt-2 px-1">
+                    <input type="range" id="temp-slider" min="0" max="1" step="0.1" value="0.6" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-clinical-500 focus:outline-none transition-colors">
+                    <div class="flex justify-between text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-2 px-1">
                         <span>Precise</span>
                         <span id="temp-display">0.6</span>
                         <span>Creative</span>
@@ -123,32 +137,32 @@
             </div>
 
             <!-- New Chat Action -->
-            <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800/60">
-                <button id="btn-new-chat" class="flex items-center gap-2.5 p-3 w-full border border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/10 dark:hover:bg-blue-500/10 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 text-[13px] font-semibold transition-all">
+            <div class="px-4 py-4 border-b border-slate-200/60 dark:border-slate-800/60">
+                <button id="btn-new-chat" class="flex items-center gap-2.5 p-3 w-full border border-dashed border-slate-300 dark:border-slate-700 hover:border-clinical-500/50 hover:bg-clinical-500/10 dark:hover:bg-clinical-500/10 rounded-xl text-slate-600 dark:text-slate-300 hover:text-clinical-700 dark:hover:text-clinical-500 text-[13px] font-semibold transition-all cursor-pointer">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-[16px] h-[16px]">
                         <path d="M12 5v14M5 12h14"/>
                     </svg>
-                    New Chat
+                    New Consultation
                 </button>
             </div>
 
             <!-- Sessions List -->
             <div id="sidebar-sessions" class="flex-1 overflow-y-auto sidebar-scroll p-3 flex flex-col gap-0.5">
-                <div id="sessions-empty" class="flex flex-col items-center justify-center p-8 text-center text-slate-500 gap-3">
+                <div id="sessions-empty" class="flex flex-col items-center justify-center p-8 text-center text-slate-500 dark:text-slate-400 gap-3">
                     <div class="text-3xl opacity-40">💬</div>
                     <div class="text-[13px] leading-relaxed font-medium">No conversations yet.<br>Start a new chat to begin!</div>
                 </div>
             </div>
 
             <!-- User Profile (Footer) -->
-            <div class="p-4 border-t border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/50 transition-colors duration-300">
+            <div class="p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-surface-light/50 dark:bg-surface-card/50 transition-colors duration-300">
                 <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors group cursor-default">
-                    <div id="sidebar-avatar" class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-sm">U</div>
+                    <div id="sidebar-avatar" class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-sm">U</div>
                     <div class="flex-1 min-w-0">
                         <div id="sidebar-name" class="text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate">User</div>
-                        <div id="sidebar-email" class="text-[11px] text-slate-500 truncate font-medium mt-0.5">email@example.com</div>
+                        <div id="sidebar-email" class="text-[11px] text-slate-500 dark:text-slate-400 truncate font-medium mt-0.5">email@example.com</div>
                     </div>
-                    <button id="btn-signout" class="text-slate-500 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-colors" title="Sign out">
+                    <button id="btn-signout" class="text-slate-400 hover:text-red-500 hover:bg-red-400/10 p-2 rounded-lg transition-colors cursor-pointer" title="Sign out">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                         </svg>
@@ -158,31 +172,31 @@
         </aside>
 
         <!-- MAIN CHAT PANEL -->
-        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative transition-colors duration-300">
+        <main class="flex-1 flex flex-col min-w-0 bg-surface-light dark:bg-surface-dark text-slate-800 dark:text-slate-100 relative transition-colors duration-300">
             
-            <!-- Header (Glassmorphism + Dark aesthetic blend) -->
-            <header class="absolute top-0 left-0 right-0 h-[72px] z-30 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-sm transition-colors duration-300">
+            <!-- Header -->
+            <header class="absolute top-0 left-0 right-0 h-[72px] z-30 flex items-center justify-between px-6 bg-white/80 dark:bg-surface-card/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-colors duration-300">
                 <div class="flex items-center gap-4 min-w-0">
-                    <button id="btn-sidebar-toggle" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white p-1.5 -ml-1.5 rounded-lg transition-colors">
+                    <button id="btn-sidebar-toggle" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white p-1.5 -ml-1.5 rounded-lg transition-colors cursor-pointer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
                             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
                         </svg>
                     </button>
                     
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600/50 shadow-inner overflow-hidden">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/40 dark:to-emerald-900/40 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/40 shadow-inner overflow-hidden">
                         <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
                     </div>
                     
                     <div class="min-w-0">
-                        <div id="chat-title" class="font-outfit font-semibold text-[15px] text-slate-800 dark:text-slate-100 truncate">AI Medical Consultant</div>
+                        <div id="chat-title" class="font-heading font-bold text-[15px] text-slate-800 dark:text-slate-100 truncate">AI Medical Consultant</div>
                         <div class="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 font-medium">
-                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
                             Online — Ready to assist
                         </div>
                     </div>
                 </div>
 
-                <button id="theme-toggle" class="p-2 rounded-xl border transition-all duration-300 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-700 bg-white/80 border-slate-200 hover:bg-slate-100 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-800 dark:text-slate-200" title="Toggle theme">
+                <button id="theme-toggle" class="p-2 rounded-xl border transition-all duration-300 border-slate-200/60 dark:border-slate-700 bg-white/80 dark:bg-surface-card/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-700 dark:text-slate-200" title="Toggle theme">
                     <span id="theme-icon">☀️</span>
                     <span id="theme-text" class="hidden sm:inline font-medium">Light Mode</span>
                 </button>
@@ -192,37 +206,37 @@
             <div id="chat-body" class="flex-1 overflow-y-auto chat-scroll px-4 md:px-8 pt-[100px] md:pt-[110px] pb-[180px] md:pb-[220px] flex flex-col gap-6 scroll-smooth">
                 <!-- Welcome Screen -->
                 <div id="welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30 shadow-sm border border-teal-200/60 dark:border-teal-800/40 flex items-center justify-center overflow-hidden">
                         <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
                     </div>
-                    <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
+                    <h2 class="font-heading font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-[13px] font-semibold" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I have a headache, what should I do?">🩺 Headache Help</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I am feeling dizzy and nauseous">🧠 Dizziness</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Home remedies for fever">🌡️ Fever Remedies</button>
                     </div>
                 </div>
             </div>
 
             <!-- Premium Floating Command Bar -->
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 via-slate-50 dark:via-slate-950 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface-light dark:from-surface-dark via-surface-light/80 dark:via-surface-dark/80 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
                 <div class="max-w-3xl mx-auto flex flex-col items-center pointer-events-auto">
                     
-                    <div class="w-full relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-lg rounded-2xl transition-all duration-200 p-2 pl-4 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50">
+                    <div class="w-full relative bg-white/70 dark:bg-surface-card/70 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 shadow-lg rounded-full transition-all duration-200 p-2 pl-5 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-clinical-500/20 focus-within:border-clinical-500/40">
                         
-                        <textarea id="chat-input" class="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed focus:outline-none" placeholder="Message E-Clinix..." rows="1"></textarea>
+                        <textarea id="chat-input" class="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed focus:outline-none" placeholder="Describe your symptoms..." rows="1"></textarea>
                         
-                        <button id="btn-send" class="h-11 w-11 md:w-auto md:px-5 rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0 shadow-md shadow-blue-500/20 mb-0.5 mr-0.5 cursor-pointer">
-                            <span class="hidden md:inline font-outfit">Send</span>
+                        <button id="btn-send" class="h-11 w-11 md:w-auto md:px-5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0 shadow-md shadow-teal-500/25 mb-0.5 mr-0.5 cursor-pointer">
+                            <span class="hidden md:inline font-heading font-semibold">Send</span>
                             <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </button>
                     </div>
 
-                    <div class="text-[11px] text-slate-500 mt-3.5 flex items-center justify-center gap-1.5 font-medium tracking-wide">
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-3.5 flex items-center justify-center gap-1.5 font-medium tracking-wide">
                         <span class="text-amber-500 text-xs">⚠️</span> AI assistant — not a substitute for professional medical advice.
                     </div>
                 </div>
@@ -472,7 +486,7 @@
                 items.forEach(s => {
                     const isActive = s.id === currentSessionId;
                     const el = document.createElement("div");
-                    el.className = `session-item group relative flex items-center gap-3 p-2.5 rounded-xl text-[13px] cursor-pointer transition-all border border-transparent ${isActive ? 'bg-blue-500/15 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-white font-semibold' : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-medium'}`;
+                    el.className = `session-item group relative flex items-center gap-3 p-2.5 rounded-xl text-[13px] cursor-pointer transition-all border border-transparent ${isActive ? 'bg-clinical-500/15 dark:bg-clinical-500/10 border-clinical-200 dark:border-clinical-500/20 text-clinical-700 dark:text-clinical-50 font-semibold' : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-medium'}`;
                     
                     el.innerHTML = `
                         <span class="text-sm shrink-0 opacity-70">💬</span>
@@ -564,14 +578,14 @@
                 ws.className = "flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]";
                 ws.id = "welcome-screen";
                 ws.innerHTML = `
-                    <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-850 shadow-sm border border-slate-200 dark:border-slate-800/60 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
-                    <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30 shadow-sm border border-teal-200/60 dark:border-teal-800/40 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
+                    <h2 class="font-heading font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I have a headache, what should I do?">🩺 Headache Help</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I am feeling dizzy and nauseous">🧠 Dizziness</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Home remedies for fever">🌡️ Fever Remedies</button>
                     </div>
                 `;
                 chatBody.appendChild(ws);
@@ -615,11 +629,11 @@
             let bubbleHtml = '';
 
             if (role === "user") {
-                avatarHtml = `<div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-850 flex items-center justify-center text-sm shrink-0 border-[2px] border-white dark:border-slate-950 shadow-sm font-semibold text-slate-500 dark:text-slate-400 transition-all">U</div>`;
-                bubbleHtml = `<div class="bg-[#0f172a] dark:bg-slate-900 text-slate-100 dark:text-slate-100 rounded-[20px] rounded-tr-sm shadow-md p-4 text-[14.5px] leading-relaxed break-words font-medium transition-colors">${escapeHTML(content)}</div>`;
+                avatarHtml = `<div class="w-9 h-9 rounded-full bg-clinical-100 dark:bg-clinical-900/50 flex items-center justify-center text-sm shrink-0 border-[2px] border-white dark:border-surface-card shadow-sm font-semibold text-clinical-700 dark:text-clinical-400 transition-all font-heading">U</div>`;
+                bubbleHtml = `<div class="bg-gradient-to-br from-teal-500 to-emerald-500 text-white rounded-[20px] rounded-tr-sm shadow-md shadow-teal-500/20 p-4 text-[14.5px] leading-relaxed break-words font-medium transition-colors">${escapeHTML(content)}</div>`;
             } else {
-                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white dark:border-slate-950 shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>`;
-                bubbleHtml = `<div class="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 text-slate-800 dark:text-slate-100 rounded-[20px] rounded-tl-sm shadow-sm p-4 text-[14.5px] leading-relaxed break-words markdown-body transition-colors">${parseMarkdown(content)}</div>`;
+                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/40 dark:to-emerald-900/40 flex items-center justify-center shrink-0 border-[2px] border-white dark:border-surface-card shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>`;
+                bubbleHtml = `<div class="bg-white dark:bg-surface-card border border-slate-200/80 dark:border-slate-700/60 text-slate-800 dark:text-slate-100 rounded-[20px] rounded-tl-sm shadow-sm p-4 text-[14.5px] leading-relaxed break-words markdown-body transition-colors">${parseMarkdown(content)}</div>`;
             }
 
             row.innerHTML = `
@@ -627,8 +641,8 @@
                 <div class="flex flex-col gap-1.5 min-w-0 group">
                     ${bubbleHtml}
                     <div class="flex items-center gap-3 px-1 ${role === "user" ? "justify-end" : "justify-start"}">
-                        <span class="text-[11px] font-semibold text-slate-400">${timeStr}</span>
-                        ${role === "bot" ? '<button class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-all bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-sm cursor-pointer" onclick="window.__copyMsg(this)">Copy</button>' : ''}
+                        <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-500">${timeStr}</span>
+                        ${role === "bot" ? '<button class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-slate-400 dark:text-slate-500 hover:text-clinical-600 dark:hover:text-clinical-400 transition-all bg-white dark:bg-surface-card border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-sm cursor-pointer" onclick="window.__copyMsg(this)">Copy</button>' : ''}
                     </div>
                 </div>
             `;
