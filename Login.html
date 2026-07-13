@@ -48,12 +48,20 @@
     </script>
     <style>
         /* Ambient Backgrounds */
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            @apply transition-colors duration-500 min-h-screen flex items-center justify-center relative overflow-hidden;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
         }
         
         /* Light mode background */
-        html.light body {
+        html.light, html.light body {
             background-color: #F8FAFC;
         }
         html.light body::before {
@@ -65,14 +73,15 @@
         }
 
         /* Dark mode background */
-        html.dark body {
-            background-image: linear-gradient(to bottom right, #0B132B, #1C2541, #0B132B);
+        html.dark, html.dark body {
+            background-color: #0B1120;
+            background-image: linear-gradient(to bottom right, #0B1120, #111827, #0B1120);
         }
         html.dark body::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -112,80 +121,155 @@
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="font-sans antialiased text-slate-900 dark:text-slate-100">
+<body class="font-sans antialiased text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center relative overflow-y-auto md:overflow-hidden transition-colors duration-500">
     
-    <button id="theme-toggle" class="absolute top-6 right-6 p-2 px-3 rounded-xl border transition-all duration-300 border-slate-200/60 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-700 dark:text-slate-200 z-50" title="Toggle theme">
-        <span id="theme-toggle-icon">☀️</span>
-        <span id="theme-toggle-text" class="font-medium">Light Mode</span>
-    </button>
-
-    <div class="login-container w-full max-w-lg mx-auto p-4 md:p-6">
+    <div class="login-container w-full max-w-5xl mx-auto p-4 md:p-6">
         
-        <!-- Premium Glass Card -->
-        <div class="p-8 md:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 shadow-2xl transition-all duration-300">
+        <!-- Premium Glass Card (Two-Column Split Layout) -->
+        <div class="w-full rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 shadow-2xl transition-all duration-300 overflow-hidden flex flex-col md:flex-row">
             
-            <!-- Top Branding Badge -->
-            <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 p-3 shadow-lg shadow-teal-500/25 flex items-center justify-center text-white text-3xl">
-                🩺
+            <!-- Left Column (Brand & Medical Trust Features) -->
+            <div class="w-full md:w-[45%] p-6 md:p-8 flex flex-col justify-between bg-gradient-to-br from-clinical-50/50 to-teal-100/20 dark:from-teal-950/20 dark:to-emerald-950/10 border-b md:border-b-0 md:border-r border-slate-200/60 dark:border-slate-800">
+                <div>
+                    <!-- Top Branding Badge -->
+                    <div class="w-14 h-14 mb-6 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 p-2.5 shadow-lg shadow-teal-500/25 flex items-center justify-center text-white text-2xl">
+                        🩺
+                    </div>
+
+                    <!-- Headings -->
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-heading leading-tight">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">E-Clinix</span> <br> Your Personal AI Medical Consultant
+                    </h1>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 mb-6 leading-relaxed font-sans">
+                        Trusted, character-by-character clinical triage. Sign in to start your secure consultation.
+                    </p>
+                </div>
+
+                <div>
+                    <!-- Human-Designed Trust Badges (2x2 Grid) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                        <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/40 border border-teal-100/50 dark:border-teal-900/20 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
+                            <span class="text-base">🔒</span> End-to-End Encrypted
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/40 border border-teal-100/50 dark:border-teal-900/20 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
+                            <span class="text-base">🩺</span> AI Medical Guidance
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/40 border border-teal-100/50 dark:border-teal-900/20 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
+                            <span class="text-base">💬</span> Persistent History
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-800/40 border border-teal-100/50 dark:border-teal-900/20 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
+                            <span class="text-base">⚡</span> Real-Time Streaming
+                        </div>
+                    </div>
+
+                    <!-- Medical Disclaimer -->
+                    <div class="mt-8 text-slate-500 dark:text-slate-400 text-xs font-medium font-sans border-t border-slate-200/50 dark:border-slate-800/60 pt-4">
+                        <p>⚠️ AI assistant — not a substitute for professional medical advice.</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Headings -->
-            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white text-center tracking-tight font-heading">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">E-Clinix</span> <br> Your Personal AI Medical Consultant
-            </h1>
-            <p class="text-sm text-slate-600 dark:text-slate-400 text-center mt-2 mb-8 leading-relaxed font-sans">
-                Trusted, character-by-character clinical triage. Sign in to start your secure consultation.
-            </p>
-
-            <!-- Google Login Button -->
-            <button id="google-login-btn" class="w-full py-4 px-6 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-500 text-slate-800 dark:text-white font-semibold text-base shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-3 group transform hover:-translate-y-0.5 relative overflow-hidden">
-                <span class="btn-spinner"></span>
-                <svg class="google-icon w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                <span class="btn-text">Continue with Google</span>
-            </button>
-
-            <!-- Human-Designed Trust Badges (2x2 Grid) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-8 pt-8 border-t border-slate-200/60 dark:border-slate-800/60">
-                <div class="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
-                    <span class="text-base">🔒</span> End-to-End Encrypted
-                </div>
-                <div class="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
-                    <span class="text-base">🩺</span> AI Medical Guidance
-                </div>
-                <div class="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
-                    <span class="text-base">💬</span> Persistent History
-                </div>
-                <div class="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30 text-teal-900 dark:text-teal-200 text-xs font-medium flex items-center gap-3 transition-colors">
-                    <span class="text-base">⚡</span> Real-Time Streaming
-                </div>
-            </div>
-
-            <!-- Status messages -->
-            <div class="hidden items-center gap-2.5 mt-6 p-3.5 rounded-xl text-sm font-medium transition-all" id="status-toast">
-                <span id="status-icon" class="flex-shrink-0"></span>
-                <span id="status-text"></span>
-            </div>
-
-            <!-- User card (shown when already signed in) -->
-            <div class="hidden items-center gap-4 mt-6 p-4 rounded-xl bg-teal-50/50 dark:bg-teal-900/10 border border-teal-100/50 dark:border-teal-800/30 transition-all" id="user-card">
-                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-lg font-bold text-white shadow-sm font-heading" id="user-avatar">U</div>
-                <div class="flex-1 min-w-0">
-                    <div class="font-heading font-semibold text-[15px] text-slate-900 dark:text-white truncate" id="user-name">User</div>
-                    <div class="text-[13px] text-slate-500 dark:text-slate-400 truncate" id="user-email">email@example.com</div>
-                </div>
-                <button class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-heading font-semibold text-[13px] shadow-md shadow-teal-500/20 transition-all hover:-translate-y-0.5" id="enter-chat-btn">
-                    Open Chat →
+            <!-- Right Column (Interactive Auth Form) -->
+            <div class="w-full md:w-[55%] p-6 md:p-8 flex flex-col justify-center relative">
+                <!-- Theme Toggle (Absolute Positioned inside Right Column) -->
+                <button id="theme-toggle" class="absolute top-3 right-4 md:top-4 md:right-6 p-1.5 px-2.5 rounded-xl border transition-all duration-300 border-slate-200/60 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs flex items-center gap-1.5 shadow-sm backdrop-blur-md cursor-pointer text-slate-700 dark:text-slate-200" title="Toggle theme">
+                    <span id="theme-toggle-icon">☀️</span>
+                    <span id="theme-toggle-text" class="font-medium">Light Mode</span>
                 </button>
-            </div>
-        </div>
 
-        <div class="text-center mt-6 text-slate-500 dark:text-slate-400 text-xs font-medium font-sans">
-            <p>⚠️ AI assistant — not a substitute for professional medical advice.</p>
+                <!-- Native Auth Tabs -->
+                <div id="auth-tabs" class="flex p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl mb-5">
+                    <button id="tab-login" class="flex-1 py-1.5 text-sm font-semibold rounded-lg bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white transition-all">Log In</button>
+                    <button id="tab-signup" class="flex-1 py-1.5 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all cursor-pointer">Sign Up</button>
+                </div>
+
+                <!-- Native Auth Forms Container -->
+                <div id="auth-forms">
+                    <!-- Log In Form -->
+                    <form id="form-login" class="flex flex-col gap-3.5">
+                        <div>
+                            <input type="email" id="login-email" placeholder="Email Address" required
+                                class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all text-sm text-slate-800 dark:text-white placeholder-slate-400">
+                        </div>
+                        <div>
+                            <input type="password" id="login-password" placeholder="Password" required
+                                class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all text-sm text-slate-800 dark:text-white placeholder-slate-400">
+                            <div class="text-right mt-1.5">
+                                <button type="button" id="btn-forgot-password" class="text-[13px] font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 transition-colors cursor-pointer">Forgot Password?</button>
+                            </div>
+                        </div>
+                        <button type="submit" id="btn-login-submit" class="w-full py-3 px-6 mt-1 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 transition-all flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer">
+                            <span class="btn-spinner border-slate-400 border-t-white dark:border-t-slate-900"></span>
+                            <span class="btn-text">Log In</span>
+                        </button>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form id="form-signup" class="hidden flex-col gap-3.5">
+                        <div>
+                            <input type="email" id="signup-email" placeholder="Email Address" required
+                                class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all text-sm text-slate-800 dark:text-white placeholder-slate-400">
+                        </div>
+                        <div>
+                            <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required minlength="6"
+                                class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all text-sm text-slate-800 dark:text-white placeholder-slate-400">
+                        </div>
+                        <button type="submit" id="btn-signup-submit" class="w-full py-3 px-6 mt-1 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 transition-all flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer">
+                            <span class="btn-spinner border-slate-400 border-t-white dark:border-t-slate-900"></span>
+                            <span class="btn-text">Create Account</span>
+                        </button>
+                    </form>
+
+                    <!-- Email Confirmation Screen -->
+                    <div id="email-confirmation-screen" class="hidden flex-col gap-3.5 text-center pb-2">
+                        <div class="w-14 h-14 mx-auto bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center text-2xl mb-1 mt-1">✉️</div>
+                        <h3 class="font-heading font-bold text-lg text-slate-800 dark:text-white">Check your email</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                            We sent a confirmation link to <br>
+                            <span id="confirm-email-display" class="font-semibold text-slate-800 dark:text-slate-200"></span><br><br>
+                            Please open your email and click the link to verify your account and sign in.
+                        </p>
+                        <button type="button" id="btn-back-to-login" class="w-full py-3 px-6 mt-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 transition-all cursor-pointer">Back to Log In</button>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div id="auth-divider" class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                    <div class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or continue with</div>
+                    <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                </div>
+
+                <!-- Google Login Button -->
+                <button id="google-login-btn" class="w-full py-3 px-6 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-500 text-slate-800 dark:text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-3 group transform hover:-translate-y-0.5 relative overflow-hidden cursor-pointer">
+                    <span class="btn-spinner"></span>
+                    <svg class="google-icon w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    <span class="btn-text">Continue with Google</span>
+                </button>
+
+                <!-- Status messages -->
+                <div class="hidden items-center gap-2.5 mt-4 p-3 rounded-xl text-xs font-medium transition-all" id="status-toast">
+                    <span id="status-icon" class="flex-shrink-0"></span>
+                    <span id="status-text"></span>
+                </div>
+
+                <!-- User card (shown when already signed in) -->
+                <div class="hidden items-center gap-3 mt-4 p-3.5 rounded-xl bg-teal-50/50 dark:bg-teal-900/10 border border-teal-100/50 dark:border-teal-800/30 transition-all" id="user-card">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-base font-bold text-white shadow-sm font-heading" id="user-avatar">U</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-heading font-semibold text-sm text-slate-900 dark:text-white truncate" id="user-name">User</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate" id="user-email">email@example.com</div>
+                    </div>
+                    <button class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-heading font-semibold text-xs shadow-md shadow-teal-500/20 transition-all hover:-translate-y-0.5" id="enter-chat-btn">
+                        Open Chat →
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -270,7 +354,12 @@
             userCard.classList.remove("hidden");
             userCard.classList.add("flex");
 
+            // Hide auth forms
+            document.getElementById("auth-tabs").style.display = "none";
+            document.getElementById("auth-forms").style.display = "none";
+            document.getElementById("auth-divider").style.display = "none";
             googleBtn.style.display = "none";
+
             showStatus("Signed in successfully! Redirecting...", "success");
 
             // Auto-redirect to chat after brief delay
@@ -322,6 +411,160 @@
                 googleBtn.classList.remove("loading");
                 btnText.textContent = "Continue with Google";
                 googleBtn.disabled = false;
+            }
+        });
+
+        // ─── Native Auth Logic ───
+        const authTabs = document.getElementById('auth-tabs');
+        const tabLogin = document.getElementById('tab-login');
+        const tabSignup = document.getElementById('tab-signup');
+        const formLogin = document.getElementById('form-login');
+        const formSignup = document.getElementById('form-signup');
+        const emailConfirmationScreen = document.getElementById('email-confirmation-screen');
+        const authDivider = document.getElementById('auth-divider');
+
+        tabLogin.addEventListener('click', () => switchTab('login'));
+        tabSignup.addEventListener('click', () => switchTab('signup'));
+
+        function switchTab(tab) {
+            hideStatus();
+            if (tab === 'login') {
+                tabLogin.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white transition-all";
+                tabSignup.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all cursor-pointer";
+                formLogin.classList.remove('hidden');
+                formLogin.classList.add('flex');
+                formSignup.classList.add('hidden');
+                formSignup.classList.remove('flex');
+            } else {
+                tabSignup.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white transition-all";
+                tabLogin.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all cursor-pointer";
+                formSignup.classList.remove('hidden');
+                formSignup.classList.add('flex');
+                formLogin.classList.add('hidden');
+                formLogin.classList.remove('flex');
+            }
+        }
+
+        function showEmailConfirmationScreen(email) {
+            document.getElementById('confirm-email-display').textContent = email;
+            
+            authTabs.classList.add('hidden');
+            authTabs.classList.remove('flex');
+            formLogin.classList.add('hidden');
+            formLogin.classList.remove('flex');
+            formSignup.classList.add('hidden');
+            formSignup.classList.remove('flex');
+            
+            emailConfirmationScreen.classList.remove('hidden');
+            emailConfirmationScreen.classList.add('flex');
+        }
+
+        function resetToLogin() {
+            authTabs.classList.remove('hidden');
+            authTabs.classList.add('flex');
+            emailConfirmationScreen.classList.add('hidden');
+            emailConfirmationScreen.classList.remove('flex');
+            switchTab('login');
+        }
+
+        document.getElementById('btn-back-to-login').addEventListener('click', resetToLogin);
+
+        function setBtnLoading(btn, isLoading, defaultText) {
+            const btnText = btn.querySelector('.btn-text');
+            if (isLoading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btnText.textContent = "Please wait...";
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btnText.textContent = defaultText;
+            }
+        }
+
+        // Handle Sign Up
+        formSignup.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-signup-submit');
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            
+            setBtnLoading(btn, true, "Create Account");
+            hideStatus();
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // Supabase returns an empty identities array if the user already exists (for security reasons)
+                if (data?.user?.identities && data.user.identities.length === 0) {
+                    showStatus("Account already exists! Please log in instead.", "error");
+                    // Switch to login tab after 2 seconds
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('login-email').value = email;
+                    }, 2000);
+                    return;
+                }
+                
+                showStatus("Confirmation link sent to your email.", "success");
+                showEmailConfirmationScreen(email);
+            } catch (err) {
+                // Also catch explicit errors from Supabase
+                if (err.message.includes("User already registered") || err.message.includes("already registered")) {
+                    showStatus("Account already exists! Please log in instead.", "error");
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('login-email').value = email;
+                    }, 2000);
+                } else {
+                    showStatus(err.message, "error");
+                }
+            } finally {
+                setBtnLoading(btn, false, "Create Account");
+            }
+        });
+
+        // Handle Log In
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login-submit');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            setBtnLoading(btn, true, "Log In");
+            hideStatus();
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                // Success is handled by onAuthStateChange
+            } catch (err) {
+                showStatus("Incorrect email or password.", "error");
+                setBtnLoading(btn, false, "Log In");
+            }
+        });
+
+
+
+        // Handle Forgot Password
+        document.getElementById('btn-forgot-password').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            if (!email) {
+                showStatus("Please enter your email address first to reset password.", "error");
+                return;
+            }
+            hideStatus();
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+                showStatus("Password reset instructions sent to your email.", "success");
+            } catch (err) {
+                showStatus(err.message, "error");
             }
         });
 
