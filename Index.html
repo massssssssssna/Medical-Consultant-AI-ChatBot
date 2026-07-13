@@ -16,8 +16,13 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>E-Clinix — AI Medical Consultant</title>
     <meta name="description" content="E-Clinix AI Medical Consultant. Get instant, professional health guidance powered by artificial intelligence.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEQ5NDg4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjZykiLz48cGF0aCBkPSJNMTIgNGEzIDMgMCAwIDAtMyAzdjRhMyAzIDAgMCAwIDYgMFY3YTMgMyAwIDAgMC0zLTN6IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTkgOGg2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMiAxNHYzYTIgMiAwIDAgMCAyIDJoMmEyIDIgMCAwIDAgMi0ydi0xIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEQ5NDg4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjZykiLz48cGF0aCBkPSJNMTIgNGEzIDMgMCAwIDAtMyAzdjRhMyAzIDAgMCAwIDYgMFY3YTMgMyAwIDAgMC0zLTN6IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTkgOGg2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMiAxNHYzYTIgMiAwIDAgMCAyIDJoMmEyIDIgMCAwIDAgMi0ydi0xIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
     
     <!-- Premium Healthcare Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -87,6 +92,33 @@
         .markdown-body p { margin-bottom: 0.5em; }
         .markdown-body strong { font-weight: 600; }
         .markdown-body em { font-style: italic; }
+
+        /* Typing Indicator Custom Theme Styling */
+        :root {
+            --typing-bg: #ffffff;
+            --typing-border: rgba(226, 232, 240, 0.8);
+            --typing-dot-bg: #CBD5E1;
+            --avatar-border: #ffffff;
+            --avatar-bg: linear-gradient(to bottom right, #F0FDFA, #DBEAFE);
+        }
+        .dark {
+            --typing-bg: #1C2541;
+            --typing-border: rgba(51, 65, 85, 0.6);
+            --typing-dot-bg: #34D399;
+            --avatar-border: #1C2541;
+            --avatar-bg: linear-gradient(to bottom right, rgba(20, 184, 166, 0.4), rgba(16, 185, 129, 0.4));
+        }
+        .typing-bubble {
+            background-color: var(--typing-bg) !important;
+            border-color: var(--typing-border) !important;
+        }
+        .typing-avatar {
+            border-color: var(--avatar-border) !important;
+            background: var(--avatar-bg) !important;
+        }
+        .typing-dot {
+            background-color: var(--typing-dot-bg) !important;
+        }
     </style>
 </head>
 <body class="bg-surface-light dark:bg-surface-dark text-slate-800 dark:text-slate-100 h-screen overflow-hidden flex transition-colors duration-400 font-sans">
@@ -666,8 +698,8 @@
             row.id = "typing-row";
             row.className = "flex items-start gap-3.5 max-w-[85%] self-start msg-animate";
             row.innerHTML = `
-                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
-                <div class="bg-white border border-slate-200/80 rounded-[20px] rounded-tl-sm shadow-sm p-4 flex items-center gap-1.5 h-[52px]">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border-[2px] shadow-sm overflow-hidden typing-avatar"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
+                <div class="bg-white border border-slate-200/80 rounded-[20px] rounded-tl-sm shadow-sm p-4 flex items-center gap-1.5 h-[52px] typing-bubble transition-colors duration-300">
                     <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
                     <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
                     <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>

@@ -1,20 +1,32 @@
 # 🩺 E-Clinix: Premium AI Medical Consultant Portal
 
-E-Clinix is a state-of-the-art, premium AI-powered Telemedicine Portal. It integrates a lightweight, fast **FastAPI** backend with a modern, glassmorphic **HTML5/Vanilla CSS** frontend. The AI capability is powered by the **Llama 3.3 70B** model via the high-performance **Groq API**.
+E-Clinix is a state-of-the-art, premium AI-powered Telemedicine Portal. It integrates a lightweight, fast **FastAPI** backend with a modern, glassmorphic **Tailwind CSS/HTML5** frontend. The AI capability is powered by the **Llama 3.3 70B** model via the high-performance **Groq API**, backed by **Supabase Auth** for secure user access management.
 
 ---
 
 ## 🌟 Key Features
 
-* **🧠 Conversational Chat Memory:** Preserves complete conversation history on the client side, allowing context-aware follow-up answers from the AI.
+* **🔐 Multi-Method Authentication (Supabase Auth):**
+  * **Native Credentials:** Secure Email/Password SignUp, LogIn, and Forgot Password features with confirmation verification screens.
+  * **Social LogIn:** "Continue with Google" OAuth authentication.
+  * **Automatic Session Guards:** Automatic verification of active session tokens on chat entry, auto-login persistence, and seamless redirects.
+* **🧠 Conversational Chat Memory:** Preserves complete conversation history on the client side and persists sessions via Supabase database, allowing context-aware follow-up answers from the AI.
 * **⚡ Safety Precision Core (Dynamic Temperature):**
-  * **Emergency / Precise Mode (Temp: 0.2):** Automatically triggers when severe keywords (e.g., *chest pain*, *bleeding*, *dosage*, *emergency*) are detected, ensuring high safety, clinical precision, and urgent guidance to seek real medical help.
-  * **Friendly / Casual Mode (Temp: 0.8):** Active for everyday wellness queries, offering supportive, empathetic, and casual health conversations.
-* **🎨 Premium Glassmorphism UI:** Designed with Outfit and Plus Jakarta Sans typography, soft gradient backgrounds, animated glow rings, real-time diagnostic status pulses, and modern hover transitions.
+  * **Clinical Triage / Precise Mode (Temp: 0.1):** Auto-triggers when severe or critical keywords (e.g., *chest pain*, *bleeding*, *dosage*, *emergency*) are detected, ensuring high safety, clinical precision, and urgent guidance to seek real medical help.
+  * **Normal / Empathetic Mode (Temp: 0.2 - 1.0):** Adjustable via a frontend slider to dial in the response temperature for general wellness queries.
+* **🎨 Premium Healthcare Aesthetics:** 
+  * Outfit and Plus Jakarta Sans typography, soft gradient backgrounds, animated glow rings, real-time diagnostic status pulses, and modern hover transitions.
+  * Sleek glassmorphic chat input bar and optimized dark mode contrast adjustments.
+  * Custom Base64-encoded SVG stethoscope favicon dynamically responsive across light and dark browser tabs.
+  * Native CSS Variable-driven typing indicators (three bouncing dots) adapting seamlessly to light/dark themes.
+* **🌗 Persistent Theme Engine:** Complete toggleable support for Light and Dark modes. The theme preference is stored in `localStorage` and initialized inline to eliminate screen flashing.
+* **👤 Dynamic Avatars:** Auto-generated user avatars displaying the user's name initial across the chat window and session history panel.
 * **✍️ Smooth Typewriter Streaming:** Utilizes a decoupled frontend queue buffer with dynamic-speed catch-up, delivering an ultra-smooth, character-by-character response effect (similar to ChatGPT/Gemini).
 * **📱 Fully Responsive:** Beautifully optimized dashboard layout across desktop, tablet, and mobile views.
 * **📋 Direct Copy Utilities:** One-click clipboard copy buttons for doctor's suggestions.
-* **🔒 Hardened Security Core:** AI system prompt secured against jailbreaks, DAN-mode persona bypasses, system instruction leaks, and domain scope creep.
+* **🔒 Hardened Security Core:** 
+  * AI system prompt secured against jailbreaks, DAN-mode persona bypasses, system instruction leaks, and domain scope creep.
+  * Zero hardcoded frontend credentials: API configurations (Supabase URL, Anon Key) are served dynamically from the backend environment.
 * **📂 Local Static Asset Serving:** Backend server configured to directly serve files like the doctor avatar (`doctor.png`) securely.
 
 ---
@@ -23,15 +35,17 @@ E-Clinix is a state-of-the-art, premium AI-powered Telemedicine Portal. It integ
 
 ```mermaid
 graph TD
-    A[Index.html - Frontend UI] -->|Sends full Chat History| B[FastAPI Backend - main.py]
-    B -->|Check for Emergency Keywords| C{Keyword Found?}
-    C -->|Yes| D[Set Temp = 0.2]
-    C -->|No| E[Set Temp = 0.8]
-    D --> F[Request Groq API]
-    E --> F
-    F -->|Process via Llama-3.3-70B| G[Groq Cloud Engine]
-    G -->|Return Reply| B
-    B -->|Send JSON Response| A
+    User([User Client]) -->|1. Sign In / OAuth| Auth[Supabase Auth]
+    Auth -->|2. Valid Session| UI[Index.html - Frontend UI]
+    UI -->|3. Get Env Keys| API_Config[FastAPI /api/config]
+    UI -->|4. Send Prompt & Chat History| API_Chat[FastAPI /api/chat]
+    API_Chat -->|5. Check Triage Keywords| KeywordCheck{Emergency Keywords Found?}
+    KeywordCheck -->|Yes| TempPrecise[Force Temperature = 0.1]
+    KeywordCheck -->|No| TempNormal[Apply Slider Temperature 0.2 - 1.0]
+    TempPrecise --> GroqReq[Request Groq API - Llama-3.3-70b-versatile]
+    TempNormal --> GroqReq
+    GroqReq -->|6. Return Reply Stream| API_Chat
+    API_Chat -->|7. Send Event Stream response| UI
 ```
 
 ---
@@ -42,15 +56,18 @@ graph TD
 Medical-Consultant/
 │
 ├── .venv/                  # Python Virtual Environment
-├── .env                    # Secret Environment variables (API Keys)
+├── .env                    # Secret Environment variables (API Keys, Supabase URLs)
 ├── .gitignore              # Files/directories excluded from Git
-├── Index.html              # Frontend user interface (HTML, CSS, JS)
-├── main.py                 # Backend FastAPI router & Groq API handler
+├── Index.html              # Main chat application dashboard interface
+├── Login.html              # Redesigned split-column auth portal (Login/Signup/Forgot Password)
+├── main.py                 # FastAPI backend router, SSE streamer & static file handler
 ├── schemas.py              # Pydantic data validation schemas
+├── requirements.txt        # Python library dependencies
 ├── doctor.png              # Doctor avatar profile image
 ├── security_report.md      # Security & Red-Teaming vulnerabilities report
 ├── run_server.bat          # Easy double-click startup batch script
-└── README.md               # Project documentation
+├── vercel.json             # Vercel serverless functions and routing configs
+└── README.md               # Project documentation (Updated)
 ```
 
 ---
@@ -61,29 +78,23 @@ Medical-Consultant/
 Ensure you have **Python 3.10+** installed on your system.
 
 ### 2. Configure Credentials
-Create a file named `.env` in the root folder (this is already ignored by git to keep your key secure) and paste your Groq API Key:
+Create a file named `.env` in the root folder (already ignored by Git to keep your credentials secure) and populate it with your keys:
 ```env
 GROQ_API_KEY=your_actual_groq_api_key_here
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 2b. Supabase Google Login Setup
-If you want the separate Google login page, create a Supabase project and add your site URL in the Auth settings.
+### 3. Supabase Configuration
+To enable native and Google authentication:
+1. In the Supabase Dashboard, navigate to **Authentication > Providers > Google** and enable Google.
+2. Provide your Google OAuth Client ID and Secret.
+3. Configure Redirect URLs under authentication settings (e.g., add `http://127.0.0.1:8000/login` and your production domain).
+4. Create the required database tables (`Chat Sessions` and `Messages`) with standard schema columns to allow session storage.
 
-Use these values in `Login.html`:
-```text
-SUPABASE_URL = your_supabase_project_url
-SUPABASE_ANON_KEY = your_supabase_anon_key
-```
-
-In Supabase dashboard:
-1. Go to **Authentication > Providers > Google** and enable Google.
-2. Add your Google OAuth credentials.
-3. Add redirect URLs like `http://127.0.0.1:8000/login` and your deployed domain.
-4. Keep the chat app route separate from the login page.
-
-### 3. Launching the Application
+### 4. Launching the Application
 #### Windows (Recommended):
-Simply double-click the **`run_server.bat`** file. It will automatically activate the Python virtual environment and run the server.
+Simply double-click the **`run_server.bat`** file. It automatically activates the Python virtual environment and starts the FastAPI server.
 
 #### Manual Startup (Terminal):
 ```bash
@@ -94,7 +105,7 @@ Simply double-click the **`run_server.bat`** file. It will automatically activat
 python -m uvicorn main:app --reload --port 8000
 ```
 
-Once running, visit **[http://127.0.0.1:8000](http://127.0.0.1:8000)** for login and **[http://127.0.0.1:8000/chat](http://127.0.0.1:8000/chat)** for the chat app.
+Once running, visit **[http://127.0.0.1:8000](http://127.0.0.1:8000)** to sign in, which will redirect you to **[http://127.0.0.1:8000/chat](http://127.0.0.1:8000/chat)** upon successful login.
 
 ---
 
