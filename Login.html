@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // Inline theme initialization to prevent UI flashing
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Clinix — Sign In</title>
@@ -22,6 +35,40 @@
             --accent-gradient: linear-gradient(135deg, #3b82f6, #14b8a6);
             --error-red: #ef4444;
             --success-green: #22c55e;
+            
+            /* Theme transition mapping variables */
+            --divider-line: rgba(255, 255, 255, 0.08);
+            --google-btn-bg: #ffffff;
+            --google-btn-text: #1f2937;
+            --google-btn-border: transparent;
+            --google-btn-hover-shadow: rgba(0, 0, 0, 0.2);
+            --feature-bg: rgba(255, 255, 255, 0.03);
+            --feature-border: rgba(255, 255, 255, 0.04);
+            --feature-hover-bg: rgba(255, 255, 255, 0.06);
+            --feature-hover-border: rgba(255, 255, 255, 0.08);
+            --user-card-bg: rgba(34, 197, 94, 0.08);
+            --user-card-border: rgba(34, 197, 94, 0.15);
+        }
+
+        html.light {
+            --bg-deep: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --border-subtle: rgba(15, 23, 42, 0.08);
+            --border-hover: rgba(15, 23, 42, 0.16);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --divider-line: rgba(15, 23, 42, 0.08);
+            --google-btn-bg: #ffffff;
+            --google-btn-text: #1f2937;
+            --google-btn-border: rgba(15, 23, 42, 0.12);
+            --google-btn-hover-shadow: rgba(0, 0, 0, 0.1);
+            --feature-bg: rgba(15, 23, 42, 0.02);
+            --feature-border: rgba(15, 23, 42, 0.04);
+            --feature-hover-bg: rgba(15, 23, 42, 0.04);
+            --feature-hover-border: rgba(15, 23, 42, 0.06);
+            --user-card-bg: rgba(34, 197, 94, 0.04);
+            --user-card-border: rgba(34, 197, 94, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +82,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Animated gradient orbs */
@@ -153,8 +201,9 @@
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
             box-shadow:
-                0 24px 48px -12px rgba(0, 0, 0, 0.4),
+                0 24px 48px -12px rgba(0, 0, 0, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* Google button */
@@ -165,16 +214,16 @@
             justify-content: center;
             gap: 12px;
             padding: 16px 24px;
-            border: none;
+            border: 1px solid var(--google-btn-border);
             border-radius: 14px;
-            background: #ffffff;
-            color: #1f2937;
+            background: var(--google-btn-bg);
+            color: var(--google-btn-text);
             font-family: 'Outfit', sans-serif;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
         }
@@ -190,7 +239,7 @@
 
         .btn-google:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 24px var(--google-btn-hover-shadow);
         }
         .btn-google:hover::before { opacity: 1; }
 
@@ -245,7 +294,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--border-subtle);
+            background: var(--divider-line);
         }
 
         /* Features */
@@ -261,14 +310,14 @@
             gap: 10px;
             padding: 12px 14px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: var(--feature-bg);
+            border: 1px solid var(--feature-border);
             transition: all 0.2s ease;
         }
 
         .feature-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.08);
+            background: var(--feature-hover-bg);
+            border-color: var(--feature-hover-border);
         }
 
         .feature-icon {
@@ -315,17 +364,32 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
             color: #fca5a5;
         }
+        html.light .status-toast.error {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            color: #b91c1c;
+        }
 
         .status-toast.success {
             background: rgba(34, 197, 94, 0.12);
             border: 1px solid rgba(34, 197, 94, 0.2);
             color: #86efac;
         }
+        html.light .status-toast.success {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            color: #15803d;
+        }
 
         .status-toast.info {
             background: rgba(59, 130, 246, 0.12);
             border: 1px solid rgba(59, 130, 246, 0.2);
             color: #93c5fd;
+        }
+        html.light .status-toast.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            color: #1d4ed8;
         }
 
         /* User card (shown when already logged in) */
@@ -334,10 +398,11 @@
             margin-top: 20px;
             padding: 16px;
             border-radius: 14px;
-            background: rgba(34, 197, 94, 0.08);
-            border: 1px solid rgba(34, 197, 94, 0.15);
+            background: var(--user-card-bg);
+            border: 1px solid var(--user-card-border);
             align-items: center;
             gap: 14px;
+            transition: all 0.3s ease;
         }
 
         .user-card.visible { display: flex; }
@@ -412,9 +477,62 @@
             .features { grid-template-columns: 1fr; }
             .brand-header h1 { font-size: 24px; }
         }
+
+        /* Light Mode Styling Overrides */
+        html.light .brand-header h1 {
+            background: linear-gradient(135deg, #0f172a 30%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        html.light .orb {
+            opacity: 0.12;
+        }
+
+        /* Theme Toggle Button styles */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.6);
+            color: #f1f5f9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(255, 255, 255, 0.16);
+            transform: translateY(-1px);
+        }
+        html.light .theme-toggle-btn {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.7);
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        html.light .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.12);
+        }
     </style>
 </head>
 <body>
+    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme">
+        <span id="theme-toggle-icon">☀️</span>
+        <span id="theme-toggle-text">Light Mode</span>
+    </button>
+
     <!-- Animated background orbs -->
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -486,6 +604,41 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // ─── Theme Management ───
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeToggleIcon = document.getElementById("theme-toggle-icon");
+        const themeToggleText = document.getElementById("theme-toggle-text");
+
+        function updateToggleUI(theme) {
+            if (theme === 'light') {
+                themeToggleIcon.textContent = '🌙';
+                themeToggleText.textContent = 'Dark Mode';
+            } else {
+                themeToggleIcon.textContent = '☀️';
+                themeToggleText.textContent = 'Light Mode';
+            }
+        }
+
+        themeToggle.addEventListener("click", () => {
+            const currentTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            if (newTheme === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            }
+            
+            localStorage.setItem('theme', newTheme);
+            updateToggleUI(newTheme);
+        });
+
+        // Initialize UI
+        const initialTheme = localStorage.getItem('theme') || 'dark';
+        updateToggleUI(initialTheme);
+
         // ─── Supabase Config ───
         let supabaseClient = null;
 

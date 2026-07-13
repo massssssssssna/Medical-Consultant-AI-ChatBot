@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // Inline theme initialization to prevent UI flashing
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Clinix — AI Medical Consultant</title>
@@ -15,6 +28,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -61,13 +75,13 @@
         .markdown-body em { font-style: italic; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 h-screen overflow-hidden flex">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex transition-colors duration-300">
 
     <!-- Auth Loading Overlay -->
-    <div id="auth-loading" class="fixed inset-0 bg-slate-50 flex items-center justify-center z-[100] transition-opacity duration-300">
+    <div id="auth-loading" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 flex items-center justify-center z-[100] transition-opacity duration-300">
         <div class="flex flex-col items-center gap-4">
-            <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
-            <div class="text-sm text-slate-600 font-medium">Verifying session...</div>
+            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 font-medium">Verifying session...</div>
         </div>
     </div>
 
@@ -78,18 +92,18 @@
     <div id="app-shell" class="flex w-full h-full" style="display:none;">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-[#0b1120] flex flex-col border-r border-slate-800/60 transition-transform duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-white dark:bg-slate-900 flex flex-col border-r border-slate-200 dark:border-slate-800/60 transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
             
             <!-- Brand -->
             <div class="p-5 pb-4">
                 <div class="flex items-center gap-3 px-1">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(59,130,246,0.25)] shrink-0">🩺</div>
-                    <span class="font-outfit font-bold text-[19px] text-slate-100 tracking-tight">E-Clinix</span>
+                    <span class="font-outfit font-bold text-[19px] text-slate-800 dark:text-slate-100 tracking-tight transition-colors">E-Clinix</span>
                 </div>
             </div>
 
             <!-- AI Mode Selector (Slider + Dynamic UI) -->
-            <div class="px-4 pb-4 border-b border-slate-800/60">
+            <div class="px-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
                 <div class="flex items-center justify-between mb-3 px-2">
                     <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Mode</div>
                     <div id="mode-badge" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-teal-500/20 bg-teal-500/10 transition-colors">
@@ -99,7 +113,7 @@
                 </div>
                 
                 <div class="px-2">
-                    <input type="range" id="temp-slider" min="0" max="1" step="0.1" value="0.6" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none">
+                    <input type="range" id="temp-slider" min="0" max="1" step="0.1" value="0.6" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none transition-colors">
                     <div class="flex justify-between text-[10px] font-medium text-slate-500 mt-2 px-1">
                         <span>Precise</span>
                         <span id="temp-display">0.6</span>
@@ -109,8 +123,8 @@
             </div>
 
             <!-- New Chat Action -->
-            <div class="px-4 py-4 border-b border-slate-800/60">
-                <button id="btn-new-chat" class="flex items-center gap-2.5 p-3 w-full border border-dashed border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/10 rounded-xl text-slate-300 hover:text-blue-300 text-[13px] font-semibold transition-all">
+            <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800/60">
+                <button id="btn-new-chat" class="flex items-center gap-2.5 p-3 w-full border border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/10 dark:hover:bg-blue-500/10 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 text-[13px] font-semibold transition-all">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-[16px] h-[16px]">
                         <path d="M12 5v14M5 12h14"/>
                     </svg>
@@ -127,11 +141,11 @@
             </div>
 
             <!-- User Profile (Footer) -->
-            <div class="p-4 border-t border-slate-800/60 bg-slate-900/50">
-                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group cursor-default">
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/50 transition-colors duration-300">
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors group cursor-default">
                     <div id="sidebar-avatar" class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-sm">U</div>
                     <div class="flex-1 min-w-0">
-                        <div id="sidebar-name" class="text-[13px] font-semibold text-slate-200 truncate">User</div>
+                        <div id="sidebar-name" class="text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate">User</div>
                         <div id="sidebar-email" class="text-[11px] text-slate-500 truncate font-medium mt-0.5">email@example.com</div>
                     </div>
                     <button id="btn-signout" class="text-slate-500 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-colors" title="Sign out">
@@ -144,29 +158,34 @@
         </aside>
 
         <!-- MAIN CHAT PANEL -->
-        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
+        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative transition-colors duration-300">
             
             <!-- Header (Glassmorphism + Dark aesthetic blend) -->
-            <header class="absolute top-0 left-0 right-0 h-[72px] z-30 flex items-center justify-between px-6 bg-[#0b1120]/80 backdrop-blur-md border-b border-slate-800/80 shadow-sm">
+            <header class="absolute top-0 left-0 right-0 h-[72px] z-30 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-sm transition-colors duration-300">
                 <div class="flex items-center gap-4 min-w-0">
-                    <button id="btn-sidebar-toggle" class="md:hidden text-slate-400 hover:text-white p-1.5 -ml-1.5 rounded-lg transition-colors">
+                    <button id="btn-sidebar-toggle" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white p-1.5 -ml-1.5 rounded-lg transition-colors">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
                             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
                         </svg>
                     </button>
                     
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shrink-0 border border-slate-600/50 shadow-inner overflow-hidden">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600/50 shadow-inner overflow-hidden">
                         <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
                     </div>
                     
                     <div class="min-w-0">
-                        <div id="chat-title" class="font-outfit font-semibold text-[15px] text-slate-100 truncate">AI Medical Consultant</div>
-                        <div class="text-[12px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-medium">
+                        <div id="chat-title" class="font-outfit font-semibold text-[15px] text-slate-800 dark:text-slate-100 truncate">AI Medical Consultant</div>
+                        <div class="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 font-medium">
                             <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                             Online — Ready to assist
                         </div>
                     </div>
                 </div>
+
+                <button id="theme-toggle" class="p-2 rounded-xl border transition-all duration-300 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-700 bg-white/80 border-slate-200 hover:bg-slate-100 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-800 dark:text-slate-200" title="Toggle theme">
+                    <span id="theme-icon">☀️</span>
+                    <span id="theme-text" class="hidden sm:inline font-medium">Light Mode</span>
+                </button>
             </header>
 
             <!-- Chat Body -->
@@ -176,24 +195,24 @@
                     <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden">
                         <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
                     </div>
-                    <h2 class="font-outfit font-bold text-[22px] text-slate-800">How can I help you today?</h2>
-                    <p class="text-slate-500 text-[14px] max-w-[420px] leading-relaxed font-medium">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
+                    <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
                     </div>
                 </div>
             </div>
 
             <!-- Premium Floating Command Bar -->
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 via-slate-50 dark:via-slate-950 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
                 <div class="max-w-3xl mx-auto flex flex-col items-center pointer-events-auto">
                     
-                    <div class="w-full relative bg-[#0f172a]/95 backdrop-blur-xl border border-slate-700/60 rounded-[28px] shadow-lg shadow-indigo-500/5 p-2 pl-4 transition-all focus-within:border-slate-500 focus-within:shadow-[0_8px_30px_rgb(99,102,241,0.15)] flex items-end gap-2 group">
+                    <div class="w-full relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-300 dark:border-slate-800 rounded-[28px] shadow-md dark:shadow-none p-2 pl-4 transition-all focus-within:border-slate-400 dark:focus-within:border-slate-600 focus-within:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:focus-within:shadow-[0_8px_30px_rgb(99,102,241,0.15)] flex items-end gap-2 group transition-colors duration-300">
                         
-                        <textarea id="chat-input" class="w-full bg-transparent text-slate-100 placeholder-slate-400 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed" placeholder="Message E-Clinix..." rows="1"></textarea>
+                        <textarea id="chat-input" class="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed" placeholder="Message E-Clinix..." rows="1"></textarea>
                         
                         <button id="btn-send" class="h-11 w-11 md:w-auto md:px-5 rounded-[20px] bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0 shadow-md shadow-blue-500/20 mb-0.5 mr-0.5">
                             <span class="hidden md:inline font-outfit">Send</span>
@@ -545,14 +564,14 @@
                 ws.className = "flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]";
                 ws.id = "welcome-screen";
                 ws.innerHTML = `
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
-                    <h2 class="font-outfit font-bold text-[22px] text-slate-800">How can I help you today?</h2>
-                    <p class="text-slate-500 text-[14px] max-w-[420px] leading-relaxed font-medium">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
+                    <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-850 shadow-sm border border-slate-200 dark:border-slate-800/60 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
+                    <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
-                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I have a headache, what should I do?">🤕 Headache Help</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="I am feeling dizzy and nauseous">🌀 Dizziness</button>
+                        <button class="welcome-chip px-4 py-2.5 rounded-full bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-semibold hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-slate-600 hover:text-blue-600 dark:hover:text-white transition-all shadow-sm flex items-center gap-2" data-msg="Home remedies for fever">🤒 Fever Remedies</button>
                     </div>
                 `;
                 chatBody.appendChild(ws);
@@ -564,9 +583,9 @@
                 const ws = document.createElement("div");
                 ws.className = "flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]";
                 ws.innerHTML = `
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
-                    <h2 class="font-outfit font-bold text-[22px] text-slate-800">Start your consultation</h2>
-                    <p class="text-slate-500 text-[14px] font-medium">Type your symptoms or health question below to begin.</p>
+                    <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-850 shadow-sm border border-slate-200 dark:border-slate-800/60 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
+                    <h2 class="font-outfit font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">Start your consultation</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-[14px] font-medium transition-colors duration-300">Type your symptoms or health question below to begin.</p>
                 `;
                 chatBody.appendChild(ws);
                 return;
@@ -596,11 +615,11 @@
             let bubbleHtml = '';
 
             if (role === "user") {
-                avatarHtml = `<div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm shrink-0 border-[2px] border-white shadow-sm font-semibold text-slate-500">U</div>`;
-                bubbleHtml = `<div class="bg-[#0f172a] text-slate-100 rounded-[20px] rounded-tr-sm shadow-md p-4 text-[14.5px] leading-relaxed break-words font-medium">${escapeHTML(content)}</div>`;
+                avatarHtml = `<div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-850 flex items-center justify-center text-sm shrink-0 border-[2px] border-white dark:border-slate-950 shadow-sm font-semibold text-slate-500 dark:text-slate-400 transition-all">U</div>`;
+                bubbleHtml = `<div class="bg-[#0f172a] dark:bg-slate-900 text-slate-100 dark:text-slate-100 rounded-[20px] rounded-tr-sm shadow-md p-4 text-[14.5px] leading-relaxed break-words font-medium transition-colors">${escapeHTML(content)}</div>`;
             } else {
-                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>`;
-                bubbleHtml = `<div class="bg-white border border-slate-200/80 text-slate-800 rounded-[20px] rounded-tl-sm shadow-sm p-4 text-[14.5px] leading-relaxed break-words markdown-body">${parseMarkdown(content)}</div>`;
+                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white dark:border-slate-950 shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>`;
+                bubbleHtml = `<div class="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 text-slate-800 dark:text-slate-100 rounded-[20px] rounded-tl-sm shadow-sm p-4 text-[14.5px] leading-relaxed break-words markdown-body transition-colors">${parseMarkdown(content)}</div>`;
             }
 
             row.innerHTML = `
@@ -609,7 +628,7 @@
                     ${bubbleHtml}
                     <div class="flex items-center gap-3 px-1 ${role === "user" ? "justify-end" : "justify-start"}">
                         <span class="text-[11px] font-semibold text-slate-400">${timeStr}</span>
-                        ${role === "bot" ? '<button class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-slate-400 hover:text-blue-500 transition-all bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm" onclick="window.__copyMsg(this)">Copy</button>' : ''}
+                        ${role === "bot" ? '<button class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-all bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-sm cursor-pointer" onclick="window.__copyMsg(this)">Copy</button>' : ''}
                     </div>
                 </div>
             `;
@@ -953,6 +972,43 @@
                 document.querySelectorAll('.session-dropdown').forEach(d => d.classList.add('hidden'));
             }
         });
+
+        // ═══════════════════════════════════════════════════
+        // THEME MANAGEMENT
+        // ═══════════════════════════════════════════════════
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+        const themeText = document.getElementById("theme-text");
+
+        function updateToggleUI(theme) {
+            if (theme === 'light') {
+                themeIcon.textContent = '🌙';
+                if (themeText) themeText.textContent = 'Dark Mode';
+            } else {
+                themeIcon.textContent = '☀️';
+                if (themeText) themeText.textContent = 'Light Mode';
+            }
+        }
+
+        themeToggle.addEventListener("click", () => {
+            const currentTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            if (newTheme === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            }
+            
+            localStorage.setItem('theme', newTheme);
+            updateToggleUI(newTheme);
+        });
+
+        // Initialize UI
+        const initialTheme = localStorage.getItem('theme') || 'dark';
+        updateToggleUI(initialTheme);
 
         initAuth();
 
