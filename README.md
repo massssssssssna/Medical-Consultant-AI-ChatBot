@@ -11,8 +11,11 @@ E-Clinix is a state-of-the-art, premium AI-powered Telemedicine Portal. It integ
   * **Emergency / Precise Mode (Temp: 0.2):** Automatically triggers when severe keywords (e.g., *chest pain*, *bleeding*, *dosage*, *emergency*) are detected, ensuring high safety, clinical precision, and urgent guidance to seek real medical help.
   * **Friendly / Casual Mode (Temp: 0.8):** Active for everyday wellness queries, offering supportive, empathetic, and casual health conversations.
 * **🎨 Premium Glassmorphism UI:** Designed with Outfit and Plus Jakarta Sans typography, soft gradient backgrounds, animated glow rings, real-time diagnostic status pulses, and modern hover transitions.
+* **✍️ Smooth Typewriter Streaming:** Utilizes a decoupled frontend queue buffer with dynamic-speed catch-up, delivering an ultra-smooth, character-by-character response effect (similar to ChatGPT/Gemini).
 * **📱 Fully Responsive:** Beautifully optimized dashboard layout across desktop, tablet, and mobile views.
 * **📋 Direct Copy Utilities:** One-click clipboard copy buttons for doctor's suggestions.
+* **🔒 Hardened Security Core:** AI system prompt secured against jailbreaks, DAN-mode persona bypasses, system instruction leaks, and domain scope creep.
+* **📂 Local Static Asset Serving:** Backend server configured to directly serve files like the doctor avatar (`doctor.png`) securely.
 
 ---
 
@@ -44,6 +47,8 @@ Medical-Consultant/
 ├── Index.html              # Frontend user interface (HTML, CSS, JS)
 ├── main.py                 # Backend FastAPI router & Groq API handler
 ├── schemas.py              # Pydantic data validation schemas
+├── doctor.png              # Doctor avatar profile image
+├── security_report.md      # Security & Red-Teaming vulnerabilities report
 ├── run_server.bat          # Easy double-click startup batch script
 └── README.md               # Project documentation
 ```
