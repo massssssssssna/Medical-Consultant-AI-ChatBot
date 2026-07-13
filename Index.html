@@ -155,7 +155,9 @@
                         </svg>
                     </button>
                     
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-xl shrink-0 border border-slate-600/50 shadow-inner">🤖</div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shrink-0 border border-slate-600/50 shadow-inner overflow-hidden">
+                        <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
+                    </div>
                     
                     <div class="min-w-0">
                         <div id="chat-title" class="font-outfit font-semibold text-[15px] text-slate-100 truncate">AI Medical Consultant</div>
@@ -171,7 +173,9 @@
             <div id="chat-body" class="flex-1 overflow-y-auto chat-scroll px-4 md:px-8 pt-[100px] md:pt-[110px] pb-[180px] md:pb-[220px] flex flex-col gap-6 scroll-smooth">
                 <!-- Welcome Screen -->
                 <div id="welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-3xl">🩺</div>
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden">
+                        <img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover">
+                    </div>
                     <h2 class="font-outfit font-bold text-[22px] text-slate-800">How can I help you today?</h2>
                     <p class="text-slate-500 text-[14px] max-w-[420px] leading-relaxed font-medium">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
@@ -256,6 +260,7 @@
         let messages          = [];   
         let isSending         = false;
         let currentTemp       = 0.6; // Default normal mode
+        let activeTypewriterInterval = null;
 
         // ═══════════════════════════════════════════════════
         // MODE SELECTOR LOGIC
@@ -372,9 +377,15 @@
             if (!error) {
                 sessions = sessions.filter(s => s.id !== sessionId);
                 if (currentSessionId === sessionId) {
+                    if (activeTypewriterInterval) {
+                        clearInterval(activeTypewriterInterval);
+                        activeTypewriterInterval = null;
+                    }
                     currentSessionId = null;
                     messages = [];
+                    chatTitle.textContent = "AI Medical Consultant";
                     renderChat();
+                    chatInput.focus();
                 }
                 renderSessionList();
             }
@@ -438,23 +449,66 @@
                 items.forEach(s => {
                     const isActive = s.id === currentSessionId;
                     const el = document.createElement("div");
-                    el.className = `session-item group flex items-center gap-3 p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all border border-transparent ${isActive ? 'bg-blue-500/10 border-blue-500/20 text-white' : 'hover:bg-white/5 text-slate-300'}`;
+                    el.className = `session-item group relative flex items-center gap-3 p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all border border-transparent ${isActive ? 'bg-blue-500/10 border-blue-500/20 text-white' : 'hover:bg-white/5 text-slate-300'}`;
                     
                     el.innerHTML = `
                         <span class="text-sm shrink-0 opacity-70">💬</span>
                         <span class="flex-1 truncate">${escapeHTML(s.title || "New Chat")}</span>
-                        <button class="session-delete opacity-0 group-hover:opacity-100 text-red-400 hover:bg-red-400/20 p-1 rounded transition-all shrink-0" title="Delete chat">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3.5 h-3.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        <button class="session-menu-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-white hover:bg-slate-700/50 p-1 rounded transition-all shrink-0" title="Options">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                         </button>
+                        <div class="session-dropdown hidden absolute right-2 top-10 w-36 bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 z-50">
+                            <button class="session-rename w-full text-left px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2">
+                                <span>✏️</span> Rename
+                            </button>
+                            <button class="session-delete w-full text-left px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2">
+                                <span>🗑️</span> Delete
+                            </button>
+                        </div>
                     `;
+
+                    const menuBtn = el.querySelector(".session-menu-btn");
+                    const dropdown = el.querySelector(".session-dropdown");
+                    const renameBtn = el.querySelector(".session-rename");
+                    const deleteBtn = el.querySelector(".session-delete");
+
+                    menuBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        // Close all other dropdowns
+                        document.querySelectorAll('.session-dropdown').forEach(d => {
+                            if (d !== dropdown) d.classList.add('hidden');
+                        });
+                        dropdown.classList.toggle("hidden");
+                    });
+
+                    renameBtn.addEventListener("click", async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        dropdown.classList.add("hidden");
+                        const newTitle = prompt("Enter new chat title:", s.title);
+                        if (newTitle && newTitle.trim() !== "" && newTitle !== s.title) {
+                            await updateSessionTitle(s.id, newTitle.trim());
+                            if (currentSessionId === s.id) {
+                                chatTitle.textContent = newTitle.trim();
+                            }
+                        }
+                    });
+
+                    deleteBtn.addEventListener("click", async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        dropdown.classList.add("hidden");
+                        if (confirm("Are you sure you want to delete this chat?")) {
+                            await deleteSession(s.id);
+                        }
+                    });
+
                     el.addEventListener("click", (e) => {
-                        if (e.target.closest(".session-delete")) return;
+                        if (e.target.closest(".session-menu-btn") || e.target.closest(".session-dropdown")) return;
                         selectSession(s.id);
                     });
-                    el.querySelector(".session-delete").addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        deleteSession(s.id);
-                    });
+                    
                     sessionsContainer.appendChild(el);
                 });
             }
@@ -464,6 +518,10 @@
         // CHAT RENDERING
         // ═══════════════════════════════════════════════════
         async function selectSession(sessionId) {
+            if (activeTypewriterInterval) {
+                clearInterval(activeTypewriterInterval);
+                activeTypewriterInterval = null;
+            }
             currentSessionId = sessionId;
             renderSessionList();
 
@@ -483,7 +541,7 @@
                 ws.className = "flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]";
                 ws.id = "welcome-screen";
                 ws.innerHTML = `
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-3xl">🩺</div>
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
                     <h2 class="font-outfit font-bold text-[22px] text-slate-800">How can I help you today?</h2>
                     <p class="text-slate-500 text-[14px] max-w-[420px] leading-relaxed font-medium">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
@@ -502,7 +560,7 @@
                 const ws = document.createElement("div");
                 ws.className = "flex-1 flex flex-col items-center justify-center text-center gap-5 p-8 animate-[fadeIn_0.5s_ease]";
                 ws.innerHTML = `
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-3xl">🩺</div>
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
                     <h2 class="font-outfit font-bold text-[22px] text-slate-800">Start your consultation</h2>
                     <p class="text-slate-500 text-[14px] font-medium">Type your symptoms or health question below to begin.</p>
                 `;
@@ -517,10 +575,15 @@
         }
 
         function appendMessageToDOM(role, content, animate = true) {
+            appendMessageToDOMWithId(role, content, null, animate);
+        }
+
+        function appendMessageToDOMWithId(role, content, id, animate = true) {
             const ws = chatBody.querySelector("#welcome-screen") || chatBody.querySelector(".flex-1");
             if (ws && ws.innerHTML.includes("How can I help you") || ws && ws.innerHTML.includes("Start your consultation")) ws.remove();
 
             const row = document.createElement("div");
+            if (id) row.id = id;
             row.className = `flex items-start gap-3.5 max-w-[85%] md:max-w-[75%] ${role === "user" ? "self-end flex-row-reverse" : "self-start"} ${animate ? "msg-animate" : ""}`;
             
             const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -532,7 +595,7 @@
                 avatarHtml = `<div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm shrink-0 border-[2px] border-white shadow-sm font-semibold text-slate-500">U</div>`;
                 bubbleHtml = `<div class="bg-[#0f172a] text-slate-100 rounded-[20px] rounded-tr-sm shadow-md p-4 text-[14.5px] leading-relaxed break-words font-medium">${escapeHTML(content)}</div>`;
             } else {
-                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center text-base shrink-0 border-[2px] border-white shadow-sm">👨‍⚕️</div>`;
+                avatarHtml = `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>`;
                 bubbleHtml = `<div class="bg-white border border-slate-200/80 text-slate-800 rounded-[20px] rounded-tl-sm shadow-sm p-4 text-[14.5px] leading-relaxed break-words markdown-body">${parseMarkdown(content)}</div>`;
             }
 
@@ -550,12 +613,22 @@
             chatBody.appendChild(row);
         }
 
+        function updateMessageInDOM(id, content) {
+            const el = document.getElementById(id);
+            if (el) {
+                const bubble = el.querySelector(".markdown-body");
+                if (bubble) {
+                    bubble.innerHTML = parseMarkdown(content);
+                }
+            }
+        }
+
         function appendTypingIndicator() {
             const row = document.createElement("div");
             row.id = "typing-row";
             row.className = "flex items-start gap-3.5 max-w-[85%] self-start msg-animate";
             row.innerHTML = `
-                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center text-base shrink-0 border-[2px] border-white shadow-sm">👨‍⚕️</div>
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center shrink-0 border-[2px] border-white shadow-sm overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
                 <div class="bg-white border border-slate-200/80 rounded-[20px] rounded-tl-sm shadow-sm p-4 flex items-center gap-1.5 h-[52px]">
                     <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
                     <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
@@ -585,6 +658,11 @@
             isSending = true;
             setInputState(true);
 
+            if (activeTypewriterInterval) {
+                clearInterval(activeTypewriterInterval);
+                activeTypewriterInterval = null;
+            }
+
             const userMsg = text.trim();
 
             messages.push({ role: "user", content: userMsg });
@@ -611,6 +689,54 @@
             insertMessage(currentSessionId, "user", userMsg);
             appendTypingIndicator();
 
+            let queue = "";
+            let renderedText = "";
+            let botMessageId = 'msg-' + Date.now();
+            let initialRender = true;
+            let streamFinished = false;
+
+            function startTypewriter() {
+                if (activeTypewriterInterval) return;
+
+                activeTypewriterInterval = setInterval(() => {
+                    if (queue.length > 0) {
+                        let charsToType = 1;
+                        if (queue.length > 100) charsToType = 6;
+                        else if (queue.length > 50) charsToType = 4;
+                        else if (queue.length > 15) charsToType = 2;
+
+                        const chunk = queue.substring(0, charsToType);
+                        queue = queue.substring(charsToType);
+                        renderedText += chunk;
+
+                        if (initialRender) {
+                            removeTypingIndicator();
+                            appendMessageToDOMWithId("bot", renderedText, botMessageId);
+                            initialRender = false;
+                        } else {
+                            updateMessageInDOM(botMessageId, renderedText);
+                        }
+                        scrollToBottom();
+                    } else if (streamFinished) {
+                        clearInterval(activeTypewriterInterval);
+                        activeTypewriterInterval = null;
+
+                        if (renderedText) {
+                            messages.push({ role: "assistant", content: renderedText });
+                            insertMessage(currentSessionId, "assistant", renderedText);
+                        }
+                        isSending = false;
+                        setInputState(false);
+
+                        if (isNewSession) {
+                            const autoTitle = userMsg.length > 45 ? userMsg.substring(0, 45) + "…" : userMsg;
+                            updateSessionTitle(currentSessionId, autoTitle);
+                            chatTitle.textContent = autoTitle;
+                        }
+                    }
+                }, 15);
+            }
+
             try {
                 const response = await fetch("/api/chat", {
                     method: "POST",
@@ -624,37 +750,69 @@
                     })
                 });
 
-                removeTypingIndicator();
-
-                if (!response.ok) throw new Error("Server error");
-
-                const data = await response.json();
-                const reply = data.reply;
-
-                messages.push({ role: "assistant", content: reply });
-                appendMessageToDOM("bot", reply);
-                scrollToBottom();
-
-                insertMessage(currentSessionId, "assistant", reply);
-
-                if (isNewSession) {
-                    const autoTitle = userMsg.length > 45 ? userMsg.substring(0, 45) + "…" : userMsg;
-                    updateSessionTitle(currentSessionId, autoTitle);
-                    chatTitle.textContent = autoTitle;
+                if (!response.ok) {
+                    throw new Error("Server error");
                 }
 
-                if (data.temperature_used !== undefined) {
-                    updateModeUIFromServer(data.temperature_used);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let done = false;
+                let chunkBuffer = "";
+
+                while (!done) {
+                    const { value, done: readerDone } = await reader.read();
+                    done = readerDone;
+                    if (value) {
+                        chunkBuffer += decoder.decode(value, { stream: true });
+                        let newlineIndex;
+                        while ((newlineIndex = chunkBuffer.indexOf("\n\n")) >= 0) {
+                            const event = chunkBuffer.slice(0, newlineIndex).trim();
+                            chunkBuffer = chunkBuffer.slice(newlineIndex + 2);
+
+                            if (event.startsWith("data: ")) {
+                                const dataStr = event.substring(6);
+                                if (!dataStr.trim()) continue;
+                                try {
+                                    const data = JSON.parse(dataStr);
+                                    if (data.type === 'meta' && data.temperature_used !== undefined) {
+                                        updateModeUIFromServer(data.temperature_used);
+                                    } else if (data.type === 'content') {
+                                        queue += data.value;
+                                        startTypewriter();
+                                    } else if (data.type === 'done') {
+                                        done = true;
+                                    } else if (data.type === 'error') {
+                                        console.error("Stream Error:", data.value);
+                                        appendErrorMessage(data.value);
+                                    }
+                                } catch (e) {
+                                    console.error("JSON parse error on stream chunk:", e, dataStr);
+                                }
+                            }
+                        }
+                    }
                 }
+
+                streamFinished = true;
+                startTypewriter();
 
             } catch (err) {
                 console.error("API Error:", err);
                 removeTypingIndicator();
-                messages.pop(); 
-                appendErrorMessage("Connection error — backend server is likely offline.");
-            } finally {
-                isSending = false;
-                setInputState(false);
+                
+                if (queue.length > 0 || renderedText.length > 0) {
+                    streamFinished = true;
+                    startTypewriter();
+                } else {
+                    if (activeTypewriterInterval) {
+                        clearInterval(activeTypewriterInterval);
+                        activeTypewriterInterval = null;
+                    }
+                    messages.pop(); 
+                    appendErrorMessage("Connection error — backend server is likely offline.");
+                    isSending = false;
+                    setInputState(false);
+                }
             }
         }
 
@@ -747,6 +905,10 @@
         // BINDINGS
         // ═══════════════════════════════════════════════════
         btnNewChat.addEventListener("click", () => {
+            if (activeTypewriterInterval) {
+                clearInterval(activeTypewriterInterval);
+                activeTypewriterInterval = null;
+            }
             currentSessionId = null;
             messages = [];
             chatTitle.textContent = "AI Medical Consultant";
@@ -780,6 +942,13 @@
             });
         }
         if (welcomeScreen) bindWelcomeChips(welcomeScreen);
+
+        // Close dropdowns on outside click
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".session-item")) {
+                document.querySelectorAll('.session-dropdown').forEach(d => d.classList.add('hidden'));
+            }
+        });
 
         initAuth();
 
