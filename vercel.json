@@ -1,12 +1,42 @@
 {
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "src": "main.py",
+      "use": "@vercel/python"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "Index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "Login.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "doctor.png",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/main.py"
+    },
+    {
+      "src": "/doctor.png",
+      "dest": "/doctor.png"
+    },
+    {
+      "src": "/login",
+      "dest": "/Login.html"
+    },
+    {
+      "src": "/chat",
+      "dest": "/Index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/Login.html"
     }
   ]
 }
