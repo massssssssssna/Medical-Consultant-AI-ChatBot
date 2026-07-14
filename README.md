@@ -89,7 +89,7 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 To enable native and Google authentication:
 1. In the Supabase Dashboard, navigate to **Authentication > Providers > Google** and enable Google.
 2. Provide your Google OAuth Client ID and Secret.
-3. Configure Redirect URLs under authentication settings (e.g., add `http://127.0.0.1:8000/login` and your production domain).
+3. Configure Redirect URLs under authentication settings (e.g., add `http://127.0.0.1:8000/login` and https://medical-consultant-ai-chat-bot.vercel.app/).
 4. Create the required database tables (`Chat Sessions` and `Messages`) with standard schema columns to allow session storage.
 
 ### 4. Launching the Application
