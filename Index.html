@@ -132,13 +132,13 @@
     </div>
 
     <!-- Mobile Sidebar Overlay -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
 
     <!-- App Shell -->
     <div id="app-shell" class="flex w-full h-full" style="display:none;">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-[280px] min-w-[280px] h-full bg-surface-light/90 dark:bg-surface-card/90 border-r border-slate-200/60 dark:border-slate-800/60 flex flex-col transition-all duration-300 z-50 absolute md:relative -translate-x-full md:translate-x-0 shadow-xl md:shadow-none backdrop-blur-sm">
+        <aside id="sidebar" class="w-[280px] min-w-[280px] flex flex-col justify-between transition-transform duration-300 ease-in-out fixed top-0 left-0 bottom-0 z-50 bg-slate-900 border-r border-slate-800 shadow-2xl -translate-x-full md:translate-x-0 md:relative md:top-auto md:left-auto md:bottom-auto md:h-full md:bg-surface-light/90 md:dark:bg-surface-card/90 md:border-r md:border-slate-200/60 md:dark:border-slate-800/60 md:shadow-none md:transition-all backdrop-blur-sm">
             
             <!-- Brand -->
             <div class="p-5 pb-4">
@@ -243,7 +243,7 @@
                     </div>
                     <h2 class="font-heading font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
-                    <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-md mx-auto w-full px-4 mb-6 mt-2">
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I have a headache, what should I do?">🩺 Headache Help</button>
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="What are the side effects of paracetamol?">💊 Drug Side Effects</button>
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="I am feeling dizzy and nauseous">🧠 Dizziness</button>
@@ -253,10 +253,10 @@
             </div>
 
             <!-- Premium Floating Command Bar -->
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface-light dark:from-surface-dark via-surface-light/80 dark:via-surface-dark/80 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface-light dark:from-surface-dark via-surface-light/80 dark:via-surface-dark/80 to-transparent pt-12 pb-8 md:pb-6 px-4 md:px-8 z-20 pointer-events-none transition-all duration-300">
                 <div class="max-w-3xl mx-auto flex flex-col items-center pointer-events-auto">
                     
-                    <div class="w-full relative bg-white/70 dark:bg-surface-card/70 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 shadow-lg rounded-full transition-all duration-200 p-2 pl-5 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-clinical-500/20 focus-within:border-clinical-500/40">
+                    <div class="w-full relative bg-white/70 dark:bg-surface-card/70 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 shadow-lg rounded-3xl transition-all duration-200 p-2 pl-5 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-clinical-500/20 focus-within:border-clinical-500/40">
                         
                         <textarea id="chat-input" class="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none text-[15px] max-h-[160px] min-h-[44px] py-3 pr-2 chat-scroll leading-relaxed focus:outline-none" placeholder="Describe your symptoms..." rows="1"></textarea>
                         
