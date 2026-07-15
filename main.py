@@ -248,7 +248,7 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
     )
     
     # Header with Logo Side-by-Side
-    logo_path = "doctor.png"
+    logo_path = "logo.png"
     if os.path.exists(logo_path):
         logo_img = Image(logo_path, width=45, height=45)
         header_data = [
