@@ -6,8 +6,16 @@ from dotenv import load_dotenv
 import os
 import re
 import json
+import random
+from datetime import datetime
 from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
 from typing import Optional
+
+# ReportLab imports for generating PDF receipts
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 # Load environment variables from .env file
 load_dotenv()
@@ -142,6 +150,316 @@ If a user asks for contact details or you need to provide them, use the above in
 ### LANGUAGE RULE ###
 Reply in the same language AND script/style as the user's latest message. Keep wording natural and do not switch script mid-response.
 """
+
+
+# ============================================================
+# TIER 1: Appointment Booking State Machine & PDF Generator
+# ============================================================
+
+booking_states: dict[str, dict] = {}
+
+DOCTORS = {
+    "1": {"name": "Dr. Ahmed Khan", "specialty": "General Physician", "fee": 1500, "slots": "Mon–Sat (9 AM – 1 PM)"},
+    "2": {"name": "Dr. Bilal Mehmood", "specialty": "Orthopedic Specialist", "fee": 2500, "slots": "Mon–Fri (2 PM – 6 PM)"},
+    "3": {"name": "Dr. Sara Tariq", "specialty": "Audiologist", "fee": 2500, "slots": "Mon, Wed, Sat (4 PM – 8 PM)"},
+    "4": {"name": "Dr. Usman Ali", "specialty": "Cardiologist", "fee": 2500, "slots": "Tue, Thu, Fri (6 PM – 9 PM)"}
+}
+
+def generate_appointment_pdf(booking_id: str, details: dict) -> str:
+    os.makedirs("receipts", exist_ok=True)
+    file_path = f"receipts/{booking_id}.pdf"
+    
+    doc = SimpleDocTemplate(
+        file_path,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+    story = []
+    
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#0d9488'), # Teal color
+        alignment=1, # Center
+        spaceAfter=5
+    )
+    
+    header_style = ParagraphStyle(
+        'HeaderStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#475569'), # Slate color
+        alignment=1, # Center
+        spaceAfter=15
+    )
+    
+    doc_title_style = ParagraphStyle(
+        'DocTitleStyle',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        leading=16,
+        textColor=colors.HexColor('#0f172a'),
+        alignment=1, # Center
+        spaceAfter=20
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#1e293b')
+    )
+    
+    footer_style = ParagraphStyle(
+        'FooterStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#0d9488'), # Teal
+        alignment=1, # Center
+        spaceBefore=25,
+        spaceAfter=5
+    )
+    
+    note_style = ParagraphStyle(
+        'NoteStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Oblique',
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#64748b'),
+        alignment=1
+    )
+    
+    # Header
+    story.append(Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style))
+    story.append(Paragraph("Location: Zylo Technologies Software House, Lahore", header_style))
+    story.append(Paragraph("<b>Official Appointment Confirmation Slip</b>", doc_title_style))
+    story.append(Spacer(1, 10))
+    
+    # Table data
+    data = [
+        [Paragraph("<b>Booking ID:</b>", body_style), Paragraph(booking_id, body_style)],
+        [Paragraph("<b>Patient Name:</b>", body_style), Paragraph(details['name'], body_style)],
+        [Paragraph("<b>Contact Number:</b>", body_style), Paragraph(details['phone'], body_style)],
+        [Paragraph("<b>Age & Gender:</b>", body_style), Paragraph(details['age_gender'], body_style)],
+        [Paragraph("<b>Doctor Name:</b>", body_style), Paragraph(details['doctor'], body_style)],
+        [Paragraph("<b>Specialty:</b>", body_style), Paragraph(details['specialty'], body_style)],
+        [Paragraph("<b>Appointment Slot:</b>", body_style), Paragraph(details['slot'], body_style)],
+        [Paragraph("<b>Consultation Fee:</b>", body_style), Paragraph(f"Rs. {details['fee']}", body_style)],
+        [Paragraph("<b>Payment Status:</b>", body_style), Paragraph("<b>Pay at Clinic</b>", ParagraphStyle('Status', parent=body_style, textColor=colors.HexColor('#059669')))]
+    ]
+    
+    t = Table(data, colWidths=[150, 350])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8fafc')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
+    ]))
+    
+    story.append(t)
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("Emergency Helpline: 03257218388", footer_style))
+    story.append(Paragraph("Please arrive 15 minutes before your scheduled slot. Bring a copy of this slip.", note_style))
+    
+    doc.build(story)
+    return file_path
+
+def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Optional[dict]:
+    if not session_id:
+        return None
+        
+    msg = user_message.strip()
+    msg_lower = msg.lower()
+    
+    # Cancel handling during active booking
+    if session_id in booking_states and msg_lower in ["cancel", "exit", "stop", "no"]:
+        booking_states.pop(session_id, None)
+        return {
+            "status": "tier_1_info",
+            "reply": "❌ Appointment booking has been cancelled. Let me know if you need anything else!",
+            "is_instant": True
+        }
+        
+    # If not active, check trigger
+    if session_id not in booking_states:
+        booking_triggers = ["book", "appointment", "checkup", "milna hai", "consult", "appoint ment"]
+        if any(trigger in msg_lower for trigger in booking_triggers):
+            booking_states[session_id] = {
+                "step": "get_name",
+                "name": None,
+                "phone": None,
+                "age_gender": None,
+                "doctor_key": None,
+                "slot": None
+            }
+            return {
+                "status": "tier_1_info",
+                "reply": "📅 **E-Clinix Appointment Booking**\n\nLet's get started. Please enter the **patient's full name** (or type *cancel* at any time to exit):",
+                "is_instant": True
+            }
+        else:
+            return None
+            
+    # Active booking handling
+    state = booking_states[session_id]
+    step = state["step"]
+    
+    if step == "get_name":
+        state["name"] = msg
+        state["step"] = "get_phone"
+        return {
+            "status": "tier_1_info",
+            "reply": f"Thank you, **{msg}**. Now, please enter the **contact number**:",
+            "is_instant": True
+        }
+        
+    elif step == "get_phone":
+        state["phone"] = msg
+        state["step"] = "get_age_gender"
+        return {
+            "status": "tier_1_info",
+            "reply": "Got it. Please enter the patient's **age and gender** (e.g., *28 Male* or *45 Female*):",
+            "is_instant": True
+        }
+        
+    elif step == "get_age_gender":
+        state["age_gender"] = msg
+        state["step"] = "get_doctor"
+        doctor_prompt = (
+            "Please select a Doctor by entering their **number (1-4)** or name:\n\n"
+            "1. 🩺 **Dr. Ahmed Khan** (General Physician)\n"
+            "   - **Fee:** Rs. 1,500 | **Timings:** Mon–Sat (9 AM – 1 PM)\n"
+            "2. 🦴 **Dr. Bilal Mehmood** (Orthopedic Specialist)\n"
+            "   - **Fee:** Rs. 2,500 | **Timings:** Mon–Fri (2 PM – 6 PM)\n"
+            "3. 👂 **Dr. Sara Tariq** (Audiologist)\n"
+            "   - **Fee:** Rs. 2,500 | **Timings:** Mon, Wed, Sat (4 PM – 8 PM)\n"
+            "4. 💖 **Dr. Usman Ali** (Cardiologist)\n"
+            "   - **Fee:** Rs. 2,500 | **Timings:** Tue, Thu, Fri (6 PM – 9 PM)"
+        )
+        return {
+            "status": "tier_1_info",
+            "reply": doctor_prompt,
+            "is_instant": True
+        }
+        
+    elif step == "get_doctor":
+        # Resolve doctor
+        selected_key = None
+        if "1" in msg_lower or "ahmed" in msg_lower or "khan" in msg_lower or "general" in msg_lower:
+            selected_key = "1"
+        elif "2" in msg_lower or "bilal" in msg_lower or "mehmood" in msg_lower or "ortho" in msg_lower:
+            selected_key = "2"
+        elif "3" in msg_lower or "sara" in msg_lower or "tariq" in msg_lower or "audio" in msg_lower:
+            selected_key = "3"
+        elif "4" in msg_lower or "usman" in msg_lower or "ali" in msg_lower or "cardio" in msg_lower:
+            selected_key = "4"
+            
+        if not selected_key:
+            return {
+                "status": "tier_1_info",
+                "reply": "⚠️ Invalid selection. Please enter a number from **1 to 4** or the doctor's name:\n\n"
+                         "1. Dr. Ahmed Khan\n2. Dr. Bilal Mehmood\n3. Dr. Sara Tariq\n4. Dr. Usman Ali",
+                "is_instant": True
+            }
+            
+        state["doctor_key"] = selected_key
+        doc_details = DOCTORS[selected_key]
+        state["step"] = "get_slot"
+        
+        return {
+            "status": "tier_1_info",
+            "reply": f"You selected **{doc_details['name']}** ({doc_details['specialty']}).\n"
+                     f"**Available Timings:** {doc_details['slots']}\n\n"
+                     f"Please enter your **preferred Date & Time Slot**:",
+            "is_instant": True
+        }
+        
+    elif step == "get_slot":
+        state["slot"] = msg
+        state["step"] = "confirm"
+        doc_details = DOCTORS[state["doctor_key"]]
+        
+        summary = (
+            "📝 **Confirm Your Appointment Details:**\n\n"
+            f"| Detail | Information |\n"
+            f"| :--- | :--- |\n"
+            f"| **Patient Name** | {state['name']} |\n"
+            f"| **Contact Number** | {state['phone']} |\n"
+            f"| **Age & Gender** | {state['age_gender']} |\n"
+            f"| **Doctor** | {doc_details['name']} ({doc_details['specialty']}) |\n"
+            f"| **Consultation Fee**| Rs. {doc_details['fee']} (Pay at Clinic) |\n"
+            f"| **Preferred Slot** | {state['slot']} |\n\n"
+            "Please reply **'confirm'** to book, or **'cancel'** to cancel the booking."
+        )
+        return {
+            "status": "tier_1_info",
+            "reply": summary,
+            "is_instant": True
+        }
+        
+    elif step == "confirm":
+        if "confirm" in msg_lower or "yes" in msg_lower or "ok" in msg_lower or "haan" in msg_lower or "confirm booking" in msg_lower:
+            doc_details = DOCTORS[state["doctor_key"]]
+            booking_id = f"ECL-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+            
+            details = {
+                "name": state["name"],
+                "phone": state["phone"],
+                "age_gender": state["age_gender"],
+                "doctor": doc_details["name"],
+                "specialty": doc_details["specialty"],
+                "slot": state["slot"],
+                "fee": doc_details["fee"]
+            }
+            
+            # Generate PDF receipt
+            pdf_path = generate_appointment_pdf(booking_id, details)
+            
+            # Remove state
+            booking_states.pop(session_id, None)
+            
+            return {
+                "status": "booking_success",
+                "reply": f"🎉 **Appointment Booked Successfully!**\nYour booking ID is **{booking_id}**.",
+                "booking_id": booking_id,
+                "pdf_url": f"/api/receipts/{booking_id}.pdf",
+                "details": details,
+                "is_instant": True
+            }
+        else:
+            return {
+                "status": "tier_1_info",
+                "reply": "⚠️ Please reply with **'confirm'** to complete the booking, or **'cancel'** to cancel.",
+                "is_instant": True
+            }
+
+@app.get("/api/receipts/{booking_id}.pdf")
+async def get_receipt(booking_id: str):
+    file_path = f"receipts/{booking_id}.pdf"
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    return FileResponse(file_path, media_type="application/pdf", filename=f"{booking_id}.pdf")
 
 
 # ============================================================
@@ -286,6 +604,12 @@ async def chat_with_doctor(request: ChatRequest):
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"}
         )
+
+    # ── TIER 1: Appointment Booking State Machine ───────────────────────────
+    # If the session is already in active booking flow, or if the message initiates it
+    booking_response = check_tier_1_booking(request.session_id, last_message_raw)
+    if booking_response:
+        return booking_response
 
     # ── TIER 0: FAQ Interceptor ────────────────────────────────────────────
     faq_response = check_tier_0_faq(last_message_raw)

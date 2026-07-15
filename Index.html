@@ -259,6 +259,7 @@
                     </div>
                     <h2 class="font-heading font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
+                    <button class="welcome-chip w-full max-w-[280px] px-5 py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold flex items-center justify-center gap-2.5 text-[14px] shadow-md shadow-teal-500/20 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] duration-200 cursor-pointer" data-msg="Book an appointment">📅 Book an Appointment</button>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-md mx-auto w-full px-4 mb-6 mt-2">
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Where is the clinic located?">📍 Clinic Location</button>
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Show me available doctors and their timings">👨‍⚕️ Doctors & Timings</button>
@@ -629,6 +630,7 @@
                     <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30 shadow-sm border border-teal-200/60 dark:border-teal-800/40 flex items-center justify-center overflow-hidden"><img src="doctor.png?v=1.1" alt="Doctor" class="w-full h-full object-cover"></div>
                     <h2 class="font-heading font-bold text-[22px] text-slate-800 dark:text-slate-100 transition-colors duration-300">How can I help you today?</h2>
                     <p class="text-slate-500 dark:text-slate-400 text-[14px] max-w-[420px] leading-relaxed font-medium transition-colors duration-300">I'm your AI Medical Consultant. Ask me about symptoms, medications, home remedies, or general health questions.</p>
+                    <button class="welcome-chip w-full max-w-[280px] px-5 py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold flex items-center justify-center gap-2.5 text-[14px] shadow-md shadow-teal-500/20 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] duration-200 cursor-pointer mb-2" data-msg="Book an appointment">📅 Book an Appointment</button>
                     <div class="flex flex-wrap justify-center gap-2.5 mt-2 max-w-2xl">
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Where is the clinic located?">📍 Clinic Location</button>
                         <button class="welcome-chip px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-surface-card/90 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-800 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md flex items-center gap-2 text-[13px] font-semibold duration-200 cursor-pointer" data-msg="Show me available doctors and their timings">👨‍⚕️ Doctors & Timings</button>
@@ -810,6 +812,42 @@
                         if (renderedText) {
                             messages.push({ role: "assistant", content: renderedText });
                             insertMessage(currentSessionId, "assistant", renderedText);
+
+                            // Render PDF slip card if pending
+                            if (window.__pendingPDF && window.__pendingPDF.botMessageId === botMessageId) {
+                                const pending = window.__pendingPDF;
+                                window.__pendingPDF = null;
+
+                                const msgRow = document.getElementById(botMessageId);
+                                if (msgRow) {
+                                    const cardContainer = document.createElement("div");
+                                    cardContainer.className = "mt-4 p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 shadow-sm max-w-sm flex flex-col gap-3.5 animate-[fadeIn_0.3s_ease]";
+                                    cardContainer.innerHTML = `
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-10 w-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-100 dark:border-teal-900">
+                                                <svg class="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-[14px] font-bold text-slate-850 dark:text-slate-100 truncate">${pending.details.doctor}</p>
+                                                <p class="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 truncate">${pending.details.specialty} | Slot: ${pending.details.slot}</p>
+                                            </div>
+                                        </div>
+                                        <a href="${pending.pdf_url}" target="_blank" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer no-underline">
+                                            <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            📄 Download Appointment Slip (PDF)
+                                        </a>
+                                    `;
+                                    const groupDiv = msgRow.querySelector(".group");
+                                    if (groupDiv) {
+                                        const timeDiv = groupDiv.querySelector("div");
+                                        groupDiv.insertBefore(cardContainer, timeDiv);
+                                    }
+                                }
+                            }
                         }
                         isSending = false;
                         setInputState(false);
@@ -828,6 +866,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
+                        session_id: currentSessionId,
                         history: messages.map(m => ({
                             role: m.role === "bot" || m.role === "assistant" ? "bot" : "user",
                             content: m.content
@@ -843,9 +882,20 @@
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const data = await response.json();
-                    if (data.status === "tier_0_success") {
+                    if (data.status === "tier_0_success" || data.status === "tier_1_info") {
                         queue += data.reply;
                         streamFinished = true;
+                        startTypewriter();
+                        return;
+                    } else if (data.status === "booking_success") {
+                        queue += data.reply;
+                        streamFinished = true;
+                        window.__pendingPDF = {
+                            pdf_url: data.pdf_url,
+                            booking_id: data.booking_id,
+                            details: data.details,
+                            botMessageId: botMessageId
+                        };
                         startTypewriter();
                         return;
                     }

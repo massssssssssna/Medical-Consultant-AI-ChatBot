@@ -59,6 +59,7 @@ class MessageModel(BaseModel):
 class ChatRequest(BaseModel):
     history: List[MessageModel]
     temperature: Optional[float] = 0.8
+    session_id: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_history_length(self) -> "ChatRequest":
