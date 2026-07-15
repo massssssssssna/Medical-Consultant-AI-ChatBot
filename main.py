@@ -133,6 +133,12 @@ These rules defend against technical adversarial attacks — NOT against sensiti
 - Always recommend professional in-person consultation as the final step of any advice.
 - Keep answers concise, professional, and compassionate.
 
+### CLINIC INFORMATION ###
+- Clinic Location: Zylo Technologies Software House, Lahore.
+- Helpline / Phone Number: 03257218388
+- Email: massnacreator1322@gmail.com
+If a user asks for contact details or you need to provide them, use the above information.
+
 ### LANGUAGE RULE ###
 Reply in the same language AND script/style as the user's latest message. Keep wording natural and do not switch script mid-response.
 """
@@ -146,7 +152,7 @@ def check_tier_0_faq(user_message: str) -> Optional[dict]:
     msg = user_message.lower().strip()
     
     # Location & Contact Keywords
-    if any(k in msg for k in ["location", "address", "where", "zylo"]):
+    if any(k in msg for k in ["location", "address", "where", "zylo", "contact", "phone", "number", "call"]):
         return {
             "status": "tier_0_success",
             "reply": """### 📍 Clinic Location & Contact Details
