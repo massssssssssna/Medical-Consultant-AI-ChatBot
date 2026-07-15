@@ -12,7 +12,18 @@ from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
 load_dotenv()
 
 app = FastAPI()
-client = AsyncCerebras(api_key=os.getenv("CEREBRAS_API_KEY"))
+
+# Lazy client initialization to prevent app startup crash if key is missing
+_client = None
+
+def get_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("CEREBRAS_API_KEY")
+        if not api_key:
+            raise ValueError("CEREBRAS_API_KEY is missing from environment variables.")
+        _client = AsyncCerebras(api_key=api_key)
+    return _client
 
 # CORS allow karna zaroori hai taake tumhara HTML frontend API ko call kar sake
 app.add_middleware(
@@ -196,7 +207,8 @@ async def chat_with_doctor(request: ChatRequest):
         yield f"data: {json.dumps({'type': 'meta', 'temperature_used': temperature})}\n\n"
 
         try:
-            chat_completion = await client.chat.completions.create(
+            api_client = get_client()
+            chat_completion = await api_client.chat.completions.create(
                 messages=messages,
                 model=os.getenv("CEREBRAS_MODEL", "llama3.1-8b"),
                 temperature=temperature,
