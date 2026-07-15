@@ -285,6 +285,112 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
     doc.build(story)
     return file_path
 
+def parse_slot_time_and_day(user_input: str):
+    # 1. Day parsing
+    days_map = {
+        "monday": "Monday", "mon": "Monday",
+        "tuesday": "Tuesday", "tue": "Tuesday",
+        "wednesday": "Wednesday", "wed": "Wednesday",
+        "thursday": "Thursday", "thu": "Thursday",
+        "friday": "Friday", "fri": "Friday",
+        "saturday": "Saturday", "sat": "Saturday",
+        "sunday": "Sunday", "sun": "Sunday"
+    }
+    msg_lower = user_input.lower()
+    parsed_day = None
+    # Sort keys by length desc to prevent prefix matching (e.g. matching "thursday" before "thu")
+    for key in sorted(days_map.keys(), key=len, reverse=True):
+        if key in msg_lower:
+            parsed_day = days_map[key]
+            break
+            
+    if not parsed_day:
+        return None, None, "Please specify a day of the week (e.g., Monday)."
+        
+    # 2. Time parsing
+    # Look for patterns like 10:30 AM, 11 AM, 2 PM, etc.
+    time_match = re.search(r'\b(1[0-2]|0?[1-9]):([0-5]\d)\s*(am|pm)\b', msg_lower)
+    if not time_match:
+        # Try matching hour only with AM/PM e.g. "11 AM"
+        time_match = re.search(r'\b(1[0-2]|0?[1-9])\s*(am|pm)\b', msg_lower)
+        if time_match:
+            hour = int(time_match.group(1))
+            minute = 0
+            period = time_match.group(2)
+        else:
+            # Try 24-hour format like 14:00, 15:30
+            time_match = re.search(r'\b(1[3-9]|2[0-3]):([0-5]\d)\b', msg_lower)
+            if time_match:
+                hour = int(time_match.group(1))
+                minute = int(time_match.group(2))
+                period = None
+            else:
+                # If there is a format like "10:00" without am/pm, reject it as vague
+                vague_match = re.search(r'\b(1[0-2]|0?[1-9]):([0-5]\d)\b', msg_lower)
+                if vague_match:
+                    return None, None, "Please explicitly specify AM or PM for the time slot (e.g., 10:00 AM or 2:00 PM)."
+                return None, None, "Please specify a valid time slot (e.g., Monday 10:00 AM or Tuesday 3:30 PM)."
+    else:
+        hour = int(time_match.group(1))
+        minute = int(time_match.group(2))
+        period = time_match.group(3)
+        
+    # Normalize hour based on period
+    if period == "pm" and hour < 12:
+        hour += 12
+    elif period == "am" and hour == 12:
+        hour = 0
+        
+    return parsed_day, (hour, minute), None
+
+def validate_doctor_availability(doctor_key: str, day: str, time_tuple: tuple[int, int]) -> tuple[bool, str]:
+    doc_rules = {
+        "1": {
+            "name": "Dr. Ahmed Khan",
+            "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "start": (9, 0), "end": (13, 0),
+            "start_str": "9:00 AM", "end_str": "1:00 PM", "days_str": "Monday to Saturday"
+        },
+        "2": {
+            "name": "Dr. Bilal Mehmood",
+            "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+            "start": (14, 0), "end": (18, 0),
+            "start_str": "2:00 PM", "end_str": "6:00 PM", "days_str": "Monday to Friday"
+        },
+        "3": {
+            "name": "Dr. Sara Tariq",
+            "days": ["Monday", "Wednesday", "Saturday"],
+            "start": (16, 0), "end": (20, 0),
+            "start_str": "4:00 PM", "end_str": "8:00 PM", "days_str": "Monday, Wednesday, Saturday"
+        },
+        "4": {
+            "name": "Dr. Usman Ali",
+            "days": ["Tuesday", "Thursday", "Friday"],
+            "start": (18, 0), "end": (21, 0),
+            "start_str": "6:00 PM", "end_str": "9:00 PM", "days_str": "Tuesday, Thursday, Friday"
+        }
+    }
+    rule = doc_rules.get(doctor_key)
+    if not rule:
+        return False, "Invalid doctor selection."
+        
+    if day not in rule["days"]:
+        return False, f"Sorry, {rule['name']} is only available on {rule['days_str']}."
+        
+    # Check time range
+    h, m = time_tuple
+    sh, sm = rule["start"]
+    eh, em = rule["end"]
+    
+    req_min = h * 60 + m
+    start_min = sh * 60 + sm
+    end_min = eh * 60 + em
+    
+    if not (start_min <= req_min <= end_min):
+        return False, f"Sorry, {rule['name']} is only available between {rule['start_str']} and {rule['end_str']} on {rule['days_str']}. Please choose a valid time slot within these hours."
+        
+    return True, ""
+
 def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Optional[dict]:
     if not session_id:
         return None
@@ -326,16 +432,25 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
     step = state["step"]
     
     if step == "get_name":
-        state["name"] = msg
+        formatted_name = msg.title()
+        state["name"] = formatted_name
         state["step"] = "get_phone"
         return {
             "status": "tier_1_info",
-            "reply": f"Thank you, **{msg}**. Now, please enter the **contact number**:",
+            "reply": f"Thank you, **{formatted_name}**. Now, please enter the **contact number**:",
             "is_instant": True
         }
         
     elif step == "get_phone":
-        state["phone"] = msg
+        digits = re.sub(r'\D', '', msg)
+        if len(digits) != 11 or not digits.startswith("03"):
+            return {
+                "status": "tier_1_info",
+                "reply": "⚠️ **Invalid contact number.** Please enter a valid 11-digit Pakistani contact number starting with 03 (e.g., *03257218388*):",
+                "is_instant": True
+            }
+        formatted_phone = f"{digits[:4]}-{digits[4:]}"
+        state["phone"] = formatted_phone
         state["step"] = "get_age_gender"
         return {
             "status": "tier_1_info",
@@ -344,7 +459,33 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
         }
         
     elif step == "get_age_gender":
-        state["age_gender"] = msg
+        # Parse age (integer 1-120)
+        age_match = re.search(r'\b(120|1[0-1]\d|[1-9]?\d)\b', msg)
+        age = int(age_match.group(1)) if age_match else None
+        
+        # Parse and normalize gender
+        gender_normalized = None
+        if re.search(r'\b(female|f|girl|woman)\b', msg_lower):
+            gender_normalized = "Female"
+        elif re.search(r'\b(male|m|boy|man)\b', msg_lower):
+            gender_normalized = "Male"
+        elif re.search(r'\b(other|o)\b', msg_lower):
+            gender_normalized = "Other"
+            
+        if not age or not (1 <= age <= 120) or not gender_normalized:
+            errors = []
+            if not age or not (1 <= age <= 120):
+                errors.append("a valid age (between 1 and 120)")
+            if not gender_normalized:
+                errors.append("a valid gender (Male, Female, or Other)")
+            
+            return {
+                "status": "tier_1_info",
+                "reply": f"⚠️ **Invalid inputs.** Please provide {' and '.join(errors)} (e.g., *28 Male* or *45 Female*):",
+                "is_instant": True
+            }
+            
+        state["age_gender"] = f"{age} Years, {gender_normalized}"
         state["step"] = "get_doctor"
         doctor_prompt = (
             "Please select a Doctor by entering their **number (1-4)** or name:\n\n"
@@ -391,12 +532,37 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
             "status": "tier_1_info",
             "reply": f"You selected **{doc_details['name']}** ({doc_details['specialty']}).\n"
                      f"**Available Timings:** {doc_details['slots']}\n\n"
-                     f"Please enter your **preferred Date & Time Slot**:",
+                     f"Please enter your **preferred Date & Time Slot** (e.g. *Monday 10:00 AM*):",
             "is_instant": True
         }
         
     elif step == "get_slot":
-        state["slot"] = msg
+        day, time_val, error_msg = parse_slot_time_and_day(msg)
+        if error_msg:
+            return {
+                "status": "tier_1_info",
+                "reply": f"⚠️ {error_msg}",
+                "is_instant": True
+            }
+            
+        is_available, availability_error = validate_doctor_availability(state["doctor_key"], day, time_val)
+        if not is_available:
+            return {
+                "status": "tier_1_info",
+                "reply": f"⚠️ {availability_error}",
+                "is_instant": True
+            }
+            
+        # Format normalized slot
+        hour, minute = time_val
+        period = "AM" if hour < 12 else "PM"
+        display_hour = hour if hour <= 12 else hour - 12
+        if display_hour == 0:
+            display_hour = 12
+        formatted_time = f"{display_hour}:{minute:02d} {period}"
+        normalized_slot = f"{day}, {formatted_time}"
+        
+        state["slot"] = normalized_slot
         state["step"] = "confirm"
         doc_details = DOCTORS[state["doctor_key"]]
         
