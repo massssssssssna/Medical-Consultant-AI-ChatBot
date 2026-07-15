@@ -24,6 +24,15 @@ E-Clinix is a state-of-the-art, premium AI-powered Telemedicine Portal. It integ
 * **✍️ Smooth Typewriter Streaming:** Utilizes a decoupled frontend queue buffer with dynamic-speed catch-up, delivering an ultra-smooth, character-by-character response effect (similar to ChatGPT/Gemini).
 * **📱 Fully Responsive:** Beautifully optimized dashboard layout across desktop, tablet, and mobile views.
 * **📋 Direct Copy Utilities:** One-click clipboard copy buttons for doctor's suggestions.
+* **📅 Tier 1: Interactive Booking & PDF Slip Generator:**
+  - Standardized conversational flow collecting Patient Name, Phone (11 digits, Pakistani mobile format starting with `03`), Age, Gender, Doctor, and Preferred Slot.
+  - **Strict Input Validation**: Automatically title-cases names, normalizes gender inputs (`Male`/`Female`/`Other`), formats phone numbers (`03XX-XXXXXXX`), and validates time slots strictly against doctor working hours and days.
+  - Automatically generates and serves a beautifully styled, print-ready PDF appointment confirmation slip.
+* **🚨 Tier 2: Emergency Escalation & Telegram Red Alert**:
+  - **Emergency Keyword Interceptor & Quick-Trigger Header Button**: Instantly triggers if emergency keywords are matched or when the header red alert button is clicked, bypassing all diagnostic/booking dialogs.
+  - **Ambulance Dispatch Dispatcher**: Collects patient name, contact number, and exact current address/location.
+  - **Telegram Bot Webhook**: Immediately triggers real-time Telegram alerts to the clinic response team containing the emergency details.
+  - **UI Red Alert Emergency Card**: Renders a visually striking emergency card in the chat pane with direct-call buttons to Government Rescue (1122) and the clinic helpline.
 * **🔒 Hardened Security Core:** 
   * AI system prompt secured against jailbreaks, DAN-mode persona bypasses, system instruction leaks, and domain scope creep.
   * Zero hardcoded frontend credentials: API configurations (Supabase URL, Anon Key) are served dynamically from the backend environment.
@@ -64,6 +73,7 @@ Medical-Consultant/
 ├── schemas.py              # Pydantic data validation schemas
 ├── requirements.txt        # Python library dependencies
 ├── doctor.png              # Doctor avatar profile image
+├── receipts/               # Generated PDF appointment slips (git ignored)
 ├── security_report.md      # Security & Red-Teaming vulnerabilities report
 ├── run_server.bat          # Easy double-click startup batch script
 ├── vercel.json             # Vercel serverless functions and routing configs

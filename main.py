@@ -7,6 +7,8 @@ import os
 import re
 import json
 import random
+import urllib.request
+import requests
 from datetime import datetime
 from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
 from typing import Optional
@@ -157,6 +159,7 @@ Reply in the same language AND script/style as the user's latest message. Keep w
 # ============================================================
 
 booking_states: dict[str, dict] = {}
+emergency_states: dict[str, dict] = {}
 
 DOCTORS = {
     "1": {"name": "Dr. Ahmed Khan", "specialty": "General Physician", "fee": 1500, "slots": "Mon–Sat (9 AM – 1 PM)"},
@@ -406,6 +409,140 @@ def validate_doctor_availability(doctor_key: str, day: str, time_tuple: tuple[in
         return False, f"Sorry, {rule['name']} is only available between {rule['start_str']} and {rule['end_str']} on {rule['days_str']}. Please choose a valid time slot within these hours."
         
     return True, ""
+
+def trigger_telegram_alert(name: str, phone: str, address: str) -> bool:
+    BOT_TOKEN = "8540383380:AAF-yh5XyWMSz5v6ypdv9k1p90WeAXd-Mos"
+    CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "5618447630")
+    
+    message = (
+        "🚨 *CRITICAL EMERGENCY & AMBULANCE ALERT* 🚨\n\n"
+        f"👤 *Patient Name:* {name}\n"
+        f"📞 *Contact Number:* {phone}\n"
+        f"📍 *Dispatch Address:* {address}\n"
+        "🏥 *Clinic:* E-Clinix (Zylo Technologies Software House, Lahore)\n\n"
+        "⚠️ *ACTION REQUIRED:* Dispatch ambulance immediately or contact patient!"
+    )
+    
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+    
+    try:
+        print("⚡ Attempting to send Telegram Emergency Alert...")
+        response = requests.post(url, data=payload, timeout=5)
+        print(f"📡 Telegram API Status Code: {response.status_code}")
+        print(f"📡 Telegram API Response: {response.text}")
+        return response.status_code == 200
+    except Exception as e:
+        print(f"❌ Telegram Error: {str(e)}")
+        return False
+
+def check_tier_2_emergency(session_id: Optional[str], user_message: str) -> Optional[dict]:
+    if not session_id:
+        return None
+        
+    msg = user_message.strip()
+    msg_lower = msg.lower()
+    
+    # Cancel handling
+    if session_id in emergency_states and msg_lower in ["cancel", "exit", "stop"]:
+        emergency_states.pop(session_id, None)
+        return {
+            "status": "tier_2_info",
+            "reply": "❌ Emergency protocol cancelled. Back to standard consultation.",
+            "is_instant": True
+        }
+        
+    # Trigger check
+    if session_id not in emergency_states:
+        emergency_triggers = [
+            "ambulance", "emergency", "heart attack", "chest pain", "bleeding", 
+            "severe blood", "unconscious", "behoosh", "saans", "breathing problem", 
+            "accident", "1122", "rescue", "stroke", "dile", "dil ka daura"
+        ]
+        if any(trigger in msg_lower for trigger in emergency_triggers):
+            # If they were in a booking state, clear it to prioritize emergency
+            booking_states.pop(session_id, None)
+            
+            emergency_states[session_id] = {
+                "step": "get_name",
+                "name": None,
+                "phone": None,
+                "address": None
+            }
+            return {
+                "status": "tier_2_info",
+                "reply": "🚨 **CRITICAL MEDICAL EMERGENCY DETECTED** 🚨\n\nWe are initiating the emergency protocol. Please enter the **patient's full name** immediately (or type *cancel* to exit):",
+                "is_instant": True
+            }
+        else:
+            return None
+            
+    # Active emergency handling
+    state = emergency_states[session_id]
+    step = state["step"]
+    
+    if step == "get_name":
+        state["name"] = msg.title()
+        state["step"] = "get_phone"
+        return {
+            "status": "tier_2_info",
+            "reply": f"Received Patient Name: **{state['name']}**.\n\nPlease enter the **active contact number** where emergency staff can call you:",
+            "is_instant": True
+        }
+        
+    elif step == "get_phone":
+        digits = re.sub(r'\D', '', msg)
+        if len(digits) != 11 or not digits.startswith("03"):
+            return {
+                "status": "tier_2_info",
+                "reply": "⚠️ **Invalid contact number.** Please enter a valid 11-digit Pakistani phone number starting with 03 (e.g. 03257218388):",
+                "is_instant": True
+            }
+        formatted_phone = f"{digits[:4]}-{digits[4:]}"
+        state["phone"] = formatted_phone
+        state["step"] = "get_address"
+        return {
+            "status": "tier_2_info",
+            "reply": "Got it. Now, please enter the **exact current address / location** for the ambulance dispatch team:",
+            "is_instant": True
+        }
+        
+    elif step == "get_address":
+        state["address"] = msg
+        name = state["name"]
+        phone = state["phone"]
+        address = state["address"]
+        
+        # Trigger Telegram alert (does not block response, handles errors gracefully)
+        alert_sent = trigger_telegram_alert(name, phone, address)
+        
+        # Clear state
+        emergency_states.pop(session_id, None)
+        
+        reply_msg = (
+            "🚨 **AMBULANCE DISPATCH ALERT SENT** 🚨\n\n"
+            "Emergency dispatch has been successfully alerted and your details have been forwarded to E-Clinix Emergency Staff.\n\n"
+            "**Forwarded Details:**\n"
+            f"- **Patient Name:** {name}\n"
+            f"- **Contact Number:** {phone}\n"
+            f"- **Dispatch Location:** {address}\n\n"
+            "⚠️ Please keep your phone line open. Our emergency staff will contact you immediately."
+        )
+        
+        return {
+            "status": "tier_2_emergency",
+            "reply": reply_msg,
+            "data": {
+                "name": name,
+                "phone": phone,
+                "address": address
+            },
+            "is_instant": True
+        }
 
 def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Optional[dict]:
     if not session_id:
@@ -786,6 +923,11 @@ async def chat_with_doctor(request: ChatRequest):
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"}
         )
+
+    # ── TIER 2: Emergency Protocol & Telegram Escalation System ─────────────
+    emergency_response = check_tier_2_emergency(request.session_id, last_message_raw)
+    if emergency_response:
+        return emergency_response
 
     # ── TIER 1: Appointment Booking State Machine ───────────────────────────
     # If the session is already in active booking flow, or if the message initiates it

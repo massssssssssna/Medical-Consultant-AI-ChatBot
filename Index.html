@@ -244,10 +244,16 @@
                     </div>
                 </div>
 
-                <button id="theme-toggle" class="p-2 rounded-xl border transition-all duration-300 border-slate-200/60 dark:border-slate-700 bg-white/80 dark:bg-surface-card/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-700 dark:text-slate-200" title="Toggle theme">
-                    <span id="theme-icon">☀️</span>
-                    <span id="theme-text" class="hidden sm:inline font-medium">Light Mode</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="emergency-btn" class="px-3.5 py-2 rounded-xl border border-red-200 dark:border-red-950 bg-red-500 hover:bg-red-600 text-white text-xs flex items-center gap-1.5 shadow-sm shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] duration-200 cursor-pointer font-bold" title="Critical Emergency">
+                        <span class="animate-pulse">🚨</span>
+                        <span>Emergency</span>
+                    </button>
+                    <button id="theme-toggle" class="p-2 rounded-xl border transition-all duration-300 border-slate-200/60 dark:border-slate-700 bg-white/80 dark:bg-surface-card/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer text-slate-700 dark:text-slate-200" title="Toggle theme">
+                        <span id="theme-icon">☀️</span>
+                        <span id="theme-text" class="hidden sm:inline font-medium">Light Mode</span>
+                    </button>
+                </div>
             </header>
 
             <!-- Chat Body -->
@@ -848,6 +854,44 @@
                                     }
                                 }
                             }
+
+                            // Render Emergency Alert Card if pending
+                            if (window.__pendingEmergencyCard && window.__pendingEmergencyCard.botMessageId === botMessageId) {
+                                const pending = window.__pendingEmergencyCard;
+                                window.__pendingEmergencyCard = null;
+
+                                const msgRow = document.getElementById(botMessageId);
+                                if (msgRow) {
+                                    const cardContainer = document.createElement("div");
+                                    cardContainer.className = "mt-4 p-4.5 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200/80 dark:border-red-900/60 shadow-md max-w-sm flex flex-col gap-3.5 animate-[fadeIn_0.3s_ease]";
+                                    cardContainer.innerHTML = `
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-10 w-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center border border-red-200 dark:border-red-900 animate-pulse">
+                                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-[14px] font-bold text-red-700 dark:text-red-400 truncate">EMERGENCY PROTOCOL ACTIVE</p>
+                                                <p class="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400">Our response team has been alerted.</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <a href="tel:1122" class="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer no-underline text-center">
+                                                🚑 Call Government Rescue (1122)
+                                            </a>
+                                            <a href="tel:03257218388" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer no-underline text-center">
+                                                📞 Call Clinic Helpline (03257218388)
+                                            </a>
+                                        </div>
+                                    `;
+                                    const groupDiv = msgRow.querySelector(".group");
+                                    if (groupDiv) {
+                                        const timeDiv = groupDiv.querySelector("div");
+                                        groupDiv.insertBefore(cardContainer, timeDiv);
+                                    }
+                                }
+                            }
                         }
                         isSending = false;
                         setInputState(false);
@@ -882,7 +926,7 @@
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const data = await response.json();
-                    if (data.status === "tier_0_success" || data.status === "tier_1_info") {
+                    if (data.status === "tier_0_success" || data.status === "tier_1_info" || data.status === "tier_2_info") {
                         queue += data.reply;
                         streamFinished = true;
                         startTypewriter();
@@ -894,6 +938,17 @@
                             pdf_url: data.pdf_url,
                             booking_id: data.booking_id,
                             details: data.details,
+                            botMessageId: botMessageId
+                        };
+                        startTypewriter();
+                        return;
+                    } else if (data.status === "tier_2_emergency") {
+                        queue += data.reply;
+                        streamFinished = true;
+                        window.__pendingEmergencyCard = {
+                            name: data.data.name,
+                            phone: data.data.phone,
+                            address: data.data.address,
                             botMessageId: botMessageId
                         };
                         startTypewriter();
@@ -1104,6 +1159,13 @@
         const themeToggle = document.getElementById("theme-toggle");
         const themeIcon = document.getElementById("theme-icon");
         const themeText = document.getElementById("theme-text");
+        const emergencyBtn = document.getElementById("emergency-btn");
+
+        if (emergencyBtn) {
+            emergencyBtn.addEventListener("click", () => {
+                sendMessage("emergency");
+            });
+        }
 
         function updateToggleUI(theme) {
             if (theme === 'light') {
