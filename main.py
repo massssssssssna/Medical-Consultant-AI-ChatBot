@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse
-from groq import AsyncGroq
+from cerebras.cloud.sdk import AsyncCerebras
 from dotenv import load_dotenv
 import os
 import re
@@ -12,7 +12,7 @@ from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
 load_dotenv()
 
 app = FastAPI()
-client = AsyncGroq()
+client = AsyncCerebras(api_key=os.getenv("CEREBRAS_API_KEY"))
 
 # CORS allow karna zaroori hai taake tumhara HTML frontend API ko call kar sake
 app.add_middleware(
@@ -198,7 +198,7 @@ async def chat_with_doctor(request: ChatRequest):
         try:
             chat_completion = await client.chat.completions.create(
                 messages=messages,
-                model="llama-3.3-70b-versatile",
+                model=os.getenv("CEREBRAS_MODEL", "llama3.1-8b"),
                 temperature=temperature,
                 stream=True,
             )

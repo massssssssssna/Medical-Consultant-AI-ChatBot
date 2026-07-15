@@ -24,6 +24,9 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEQ5NDg4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjZykiLz48cGF0aCBkPSJNMTIgNGEzIDMgMCAwIDAtMyAzdjRhMyAzIDAgMCAwIDYgMFY3YTMgMyAwIDAgMC0zLTN6IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTkgOGg2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMiAxNHYzYTIgMiAwIDAgMCAyIDJoMmEyIDIgMCAwIDAgMi0ydi0xIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEQ5NDg4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjZykiLz48cGF0aCBkPSJNMTIgNGEzIDMgMCAwIDAtMyAzdjRhMyAzIDAgMCAwIDYgMFY3YTMgMyAwIDAgMC0zLTN6IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTkgOGg2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMiAxNHYzYTIgMiAwIDAgMCAyIDJoMmEyIDIgMCAwIDAgMi0ydi0xIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
     
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <!-- Premium Healthcare Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,9 +92,22 @@
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
         /* Markdown Parsing Styles */
-        .markdown-body p { margin-bottom: 0.5em; }
+        .markdown-body p { margin-bottom: 0.75em; }
+        .markdown-body p:last-child { margin-bottom: 0; }
         .markdown-body strong { font-weight: 600; }
         .markdown-body em { font-style: italic; }
+        .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .markdown-body h2 { font-size: 1.25rem; font-weight: 700; margin-top: 0.875rem; margin-bottom: 0.5rem; }
+        .markdown-body h3 { font-size: 1.1rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.375rem; }
+        .markdown-body ul, .markdown-body ol { padding-left: 1.25rem; margin-bottom: 0.75rem; list-style-type: disc; }
+        .markdown-body ol { list-style-type: decimal; }
+        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+        .markdown-body th, .markdown-body td { border: 1px solid rgba(226, 232, 240, 0.2); padding: 0.5rem 0.75rem; text-align: left; }
+        .markdown-body th { background-color: rgba(20, 184, 166, 0.1); font-weight: 600; }
+        .markdown-body tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02); }
+        .light .markdown-body th, .light .markdown-body td { border-color: rgba(0, 0, 0, 0.1); }
+        .light .markdown-body th { background-color: rgba(20, 184, 166, 0.05); }
 
         /* Typing Indicator Custom Theme Styling */
         :root {
@@ -908,16 +924,17 @@
         }
 
         function parseMarkdown(text) {
-            let s = escapeHTML(text);
-            s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-            s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
-            s = s.split("\n").map(line => {
-                const t = line.trim();
-                if (t.startsWith("- ") || t.startsWith("* ")) return "• " + t.substring(2);
-                return line;
-            }).join("\n");
-            s = s.replace(/\n/g, "<br>");
-            return s;
+            try {
+                // Parse markdown to HTML using marked.js
+                return marked.parse(text);
+            } catch (e) {
+                console.error("Markdown parsing error, falling back to basic escaping", e);
+                let s = escapeHTML(text);
+                s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
+                s = s.replace(/\n/g, "<br>");
+                return s;
+            }
         }
 
         function setInputState(disabled) {
