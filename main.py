@@ -12,6 +12,8 @@ import requests
 from datetime import datetime
 from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
 from typing import Optional
+import io
+from supabase import create_client, Client
 
 # ReportLab imports for generating PDF receipts
 from reportlab.lib.pagesizes import letter
@@ -24,6 +26,20 @@ load_dotenv()
 
 app = FastAPI()
 client = AsyncCerebras(api_key=os.getenv("CEREBRAS_API_KEY"))
+
+# Initialize Supabase client
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+
+supabase_client: Optional[Client] = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print("⚡ Supabase client initialized successfully.")
+    except Exception as e:
+        print(f"❌ Error initializing Supabase client: {e}")
+else:
+    print("⚠️ Supabase credentials missing. Client not initialized.")
 
 # CORS allow karna zaroori hai taake tumhara HTML frontend API ko call kar sake
 app.add_middleware(
@@ -168,12 +184,11 @@ DOCTORS = {
     "4": {"name": "Dr. Usman Ali", "specialty": "Cardiologist", "fee": 2500, "slots": "Tue, Thu, Fri (6 PM – 9 PM)"}
 }
 
-def generate_appointment_pdf(booking_id: str, details: dict) -> str:
-    os.makedirs("receipts", exist_ok=True)
-    file_path = f"receipts/{booking_id}.pdf"
+def generate_appointment_pdf(booking_id: str, details: dict) -> bytes:
+    buffer = io.BytesIO()
     
     doc = SimpleDocTemplate(
-        file_path,
+        buffer,
         pagesize=letter,
         rightMargin=40,
         leftMargin=40,
@@ -302,7 +317,10 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
     story.append(Paragraph("Please arrive 15 minutes before your scheduled slot. Bring a copy of this slip.", note_style))
     
     doc.build(story)
-    return file_path
+    buffer.seek(0)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
 
 def parse_slot_time_and_day(user_input: str):
     # 1. Day parsing
@@ -752,8 +770,59 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
                 "fee": doc_details["fee"]
             }
             
-            # Generate PDF receipt
-            pdf_path = generate_appointment_pdf(booking_id, details)
+            # Generate PDF receipt in memory
+            try:
+                pdf_bytes = generate_appointment_pdf(booking_id, details)
+            except Exception as pdf_err:
+                print(f"❌ Error generating PDF: {pdf_err}")
+                return {
+                    "status": "tier_1_info",
+                    "reply": f"⚠️ Failed to generate appointment PDF: {pdf_err}",
+                    "is_instant": True
+                }
+            
+            # Default fallback PDF URL in case Supabase fails
+            pdf_url = f"/api/receipts/{booking_id}.pdf"
+            
+            if supabase_client:
+                # File naming convention: receipts/ECL-{booking_id}.pdf.
+                file_name = f"{booking_id}.pdf" if booking_id.startswith("ECL-") else f"ECL-{booking_id}.pdf"
+                storage_path = f"receipts/{file_name}"
+                
+                try:
+                    # Upload to Supabase Storage
+                    supabase_client.storage.from_("pdf-receipts").upload(
+                        path=storage_path,
+                        file=pdf_bytes,
+                        file_options={"content-type": "application/pdf"}
+                    )
+                    # Get Public URL
+                    pdf_url = supabase_client.storage.from_("pdf-receipts").get_public_url(storage_path)
+                    print(f"⚡ PDF receipt uploaded to Supabase Storage: {pdf_url}")
+                except Exception as upload_err:
+                    print(f"❌ Error uploading PDF to Supabase Storage: {upload_err}")
+                
+                try:
+                    # Save Record in Supabase Database
+                    appointment_data = {
+                        "booking_id": booking_id,
+                        "patient_name": details["name"],
+                        "phone": details["phone"],
+                        "doctor": details["doctor"],
+                        "slot": details["slot"],
+                        "fee": details["fee"],
+                        "pdf_url": pdf_url,
+                        "created_at": datetime.utcnow().isoformat()
+                    }
+                    supabase_client.table("appointments").insert(appointment_data).execute()
+                    print(f"⚡ Appointment record saved in Supabase Database: {booking_id}")
+                except Exception as db_err:
+                    print(f"❌ Error inserting record in Supabase Database: {db_err}")
+            else:
+                print("⚠️ Supabase client not configured. Saving local fallback only.")
+                os.makedirs("receipts", exist_ok=True)
+                with open(f"receipts/{booking_id}.pdf", "wb") as f:
+                    f.write(pdf_bytes)
             
             # Remove state
             booking_states.pop(session_id, None)
@@ -762,7 +831,7 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
                 "status": "booking_success",
                 "reply": f"🎉 **Appointment Booked Successfully!**\nYour booking ID is **{booking_id}**.",
                 "booking_id": booking_id,
-                "pdf_url": f"/api/receipts/{booking_id}.pdf",
+                "pdf_url": pdf_url,
                 "details": details,
                 "is_instant": True
             }
@@ -775,6 +844,22 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
 
 @app.get("/api/receipts/{booking_id}.pdf")
 async def get_receipt(booking_id: str):
+    file_name = f"{booking_id}.pdf"
+    storage_path = f"receipts/{file_name}"
+    
+    # Try fetching from Supabase Storage first
+    if supabase_client:
+        try:
+            response = supabase_client.storage.from_("pdf-receipts").download(storage_path)
+            return StreamingResponse(
+                io.BytesIO(response),
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"inline; filename={file_name}"}
+            )
+        except Exception as e:
+            print(f"ℹ️ Could not fetch receipt {booking_id} from Supabase: {e}. Checking local filesystem...")
+            
+    # Fallback to local files
     file_path = f"receipts/{booking_id}.pdf"
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Receipt not found")
