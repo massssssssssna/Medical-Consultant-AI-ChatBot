@@ -801,6 +801,14 @@ def check_tier_1_booking(session_id: Optional[str], user_message: str) -> Option
                     print(f"⚡ PDF receipt uploaded to Supabase Storage: {pdf_url}")
                 except Exception as upload_err:
                     print(f"❌ Error uploading PDF to Supabase Storage: {upload_err}")
+                    # Save local fallback copy so the server can serve it if upload failed
+                    try:
+                        os.makedirs("receipts", exist_ok=True)
+                        with open(f"receipts/{booking_id}.pdf", "wb") as f:
+                            f.write(pdf_bytes)
+                        print(f"ℹ️ Saved local fallback copy to receipts/{booking_id}.pdf")
+                    except Exception as local_err:
+                        print(f"❌ Failed to save local fallback copy: {local_err}")
                 
                 try:
                     # Save Record in Supabase Database
