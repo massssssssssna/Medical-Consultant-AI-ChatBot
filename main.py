@@ -189,7 +189,7 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         fontSize=18,
         leading=22,
         textColor=colors.HexColor('#0d9488'), # Teal color
-        alignment=0, # Left-aligned next to logo
+        alignment=1, # Center
         spaceAfter=2
     )
     
@@ -200,7 +200,7 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         fontSize=9,
         leading=12,
         textColor=colors.HexColor('#64748b'), # Slate color
-        alignment=0, # Left-aligned next to logo
+        alignment=1, # Center
         spaceAfter=0
     )
     
@@ -247,28 +247,9 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         alignment=1
     )
     
-    # Header with Logo Side-by-Side
-    logo_path = "logo.png"
-    if os.path.exists(logo_path):
-        logo_img = Image(logo_path, width=45, height=45)
-        header_data = [
-            [logo_img, [
-                Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style),
-                Paragraph("Location: Zylo Technologies Software House, Lahore", header_style)
-            ]]
-        ]
-        header_table = Table(header_data, colWidths=[60, 440])
-        header_table.setStyle(TableStyle([
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-            ('ALIGN', (1, 0), (1, 0), 'LEFT'),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-            ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ]))
-        story.append(header_table)
-    else:
-        story.append(Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style))
-        story.append(Paragraph("Location: Zylo Technologies Software House, Lahore", header_style))
+    # Clean Centered Header Text (No Logo)
+    story.append(Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style))
+    story.append(Paragraph("Location: Zylo Technologies Software House, Lahore", header_style))
 
     # Decorative separator line
     divider = Table([[""]], colWidths=[500], rowHeights=[2])
