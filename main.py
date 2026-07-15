@@ -13,7 +13,7 @@ from typing import Optional
 
 # ReportLab imports for generating PDF receipts
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
@@ -186,22 +186,22 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         'TitleStyle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=24,
+        fontSize=18,
+        leading=22,
         textColor=colors.HexColor('#0d9488'), # Teal color
-        alignment=1, # Center
-        spaceAfter=5
+        alignment=0, # Left-aligned next to logo
+        spaceAfter=2
     )
     
     header_style = ParagraphStyle(
         'HeaderStyle',
         parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor('#475569'), # Slate color
-        alignment=1, # Center
-        spaceAfter=15
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#64748b'), # Slate color
+        alignment=0, # Left-aligned next to logo
+        spaceAfter=0
     )
     
     doc_title_style = ParagraphStyle(
@@ -212,7 +212,8 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         leading=16,
         textColor=colors.HexColor('#0f172a'),
         alignment=1, # Center
-        spaceAfter=20
+        spaceBefore=15,
+        spaceAfter=15
     )
     
     body_style = ParagraphStyle(
@@ -246,35 +247,69 @@ def generate_appointment_pdf(booking_id: str, details: dict) -> str:
         alignment=1
     )
     
-    # Header
-    story.append(Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style))
-    story.append(Paragraph("Location: Zylo Technologies Software House, Lahore", header_style))
-    story.append(Paragraph("<b>Official Appointment Confirmation Slip</b>", doc_title_style))
+    # Header with Logo Side-by-Side
+    logo_path = "doctor.png"
+    if os.path.exists(logo_path):
+        logo_img = Image(logo_path, width=45, height=45)
+        header_data = [
+            [logo_img, [
+                Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style),
+                Paragraph("Location: Zylo Technologies Software House, Lahore", header_style)
+            ]]
+        ]
+        header_table = Table(header_data, colWidths=[60, 440])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ]))
+        story.append(header_table)
+    else:
+        story.append(Paragraph("<b>E-CLINIX MEDICAL CENTER</b>", title_style))
+        story.append(Paragraph("Location: Zylo Technologies Software House, Lahore", header_style))
+
+    # Decorative separator line
+    divider = Table([[""]], colWidths=[500], rowHeights=[2])
+    divider.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d9488')),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
     story.append(Spacer(1, 10))
+    story.append(divider)
+    story.append(Spacer(1, 5))
+    
+    story.append(Paragraph("<b>Official Appointment Confirmation Slip</b>", doc_title_style))
     
     # Table data
     data = [
-        [Paragraph("<b>Booking ID:</b>", body_style), Paragraph(booking_id, body_style)],
-        [Paragraph("<b>Patient Name:</b>", body_style), Paragraph(details['name'], body_style)],
-        [Paragraph("<b>Contact Number:</b>", body_style), Paragraph(details['phone'], body_style)],
-        [Paragraph("<b>Age & Gender:</b>", body_style), Paragraph(details['age_gender'], body_style)],
-        [Paragraph("<b>Doctor Name:</b>", body_style), Paragraph(details['doctor'], body_style)],
-        [Paragraph("<b>Specialty:</b>", body_style), Paragraph(details['specialty'], body_style)],
-        [Paragraph("<b>Appointment Slot:</b>", body_style), Paragraph(details['slot'], body_style)],
-        [Paragraph("<b>Consultation Fee:</b>", body_style), Paragraph(f"Rs. {details['fee']}", body_style)],
-        [Paragraph("<b>Payment Status:</b>", body_style), Paragraph("<b>Pay at Clinic</b>", ParagraphStyle('Status', parent=body_style, textColor=colors.HexColor('#059669')))]
+        [Paragraph("<b>Appointment Details</b>", ParagraphStyle('TableH', parent=body_style, fontName='Helvetica-Bold', textColor=colors.HexColor('#0f172a'), fontSize=11)), ""],
+        [Paragraph("<b>Booking ID</b>", body_style), Paragraph(booking_id, ParagraphStyle('BId', parent=body_style, fontName='Helvetica-Bold', textColor=colors.HexColor('#0d9488')))],
+        [Paragraph("<b>Patient Name</b>", body_style), Paragraph(details['name'], body_style)],
+        [Paragraph("<b>Contact Number</b>", body_style), Paragraph(details['phone'], body_style)],
+        [Paragraph("<b>Age & Gender</b>", body_style), Paragraph(details['age_gender'], body_style)],
+        [Paragraph("<b>Doctor Name</b>", body_style), Paragraph(details['doctor'], body_style)],
+        [Paragraph("<b>Specialty</b>", body_style), Paragraph(details['specialty'], body_style)],
+        [Paragraph("<b>Appointment Slot</b>", body_style), Paragraph(details['slot'], body_style)],
+        [Paragraph("<b>Consultation Fee</b>", body_style), Paragraph(f"Rs. {details['fee']}", ParagraphStyle('Fee', parent=body_style, fontName='Helvetica-Bold'))],
+        [Paragraph("<b>Payment Status</b>", body_style), Paragraph("<b>Pay at Clinic</b>", ParagraphStyle('Status', parent=body_style, textColor=colors.HexColor('#059669')))]
     ]
     
-    t = Table(data, colWidths=[150, 350])
+    t = Table(data, colWidths=[160, 340])
     t.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8fafc')),
+        ('SPAN', (0, 0), (1, 0)),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f1f5f9')),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#ffffff')),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ('TOPPADDING', (0, 0), (-1, -1), 8),
         ('LEFTPADDING', (0, 0), (-1, -1), 12),
         ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
+        ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#cbd5e1')),
     ]))
     
     story.append(t)
