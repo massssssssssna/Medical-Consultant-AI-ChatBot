@@ -7,6 +7,7 @@ import os
 import re
 import json
 from schemas import ChatRequest, COMPILED_CONTENT_PATTERNS
+from typing import Optional
 
 # Load environment variables from .env file
 load_dotenv()
@@ -138,6 +139,118 @@ Reply in the same language AND script/style as the user's latest message. Keep w
 
 
 # ============================================================
+# TIER 0: FAQ Interceptor
+# ============================================================
+
+def check_tier_0_faq(user_message: str) -> Optional[dict]:
+    msg = user_message.lower().strip()
+    
+    # Location & Contact Keywords
+    if any(k in msg for k in ["location", "address", "where", "zylo"]):
+        return {
+            "status": "tier_0_success",
+            "reply": """### 📍 Clinic Location & Contact Details
+
+**Location:** 
+Zylo Technologies Software House, Lahore.
+[View on Google Maps](https://maps.app.goo.gl/5vj2mU8is5eb5Bas9)
+
+**Contact Information:**
+- **Helpline:** 03257218388
+- **Email:** [massnacreator1322@gmail.com](mailto:massnacreator1322@gmail.com)""",
+            "is_instant": True
+        }
+        
+    # Fees Keywords
+    if any(k in msg for k in ["fee", "price", "cost", "fees", "charges"]):
+        return {
+            "status": "tier_0_success",
+            "reply": """### 💳 Consultation Fees Structure
+
+Here is the fee structure for our consultations:
+
+| Consultation Type | Fee |
+| :--- | :--- |
+| **General Physician** | Rs. 1,500 |
+| **Specialists** | Rs. 2,500 |
+| **Online Video Consultation** | Rs. 1,200 |""",
+            "is_instant": True
+        }
+        
+    # Specialty Specific Timings Checks
+    if "orthopedic" in msg:
+        return {
+            "status": "tier_0_success",
+            "reply": """### 🦴 Orthopedic Specialist Timings & Services
+
+- **Doctor:** Dr. Bilal Mehmood
+- **Timings:** Monday to Friday (2:00 PM – 6:00 PM)
+- **Services:** Joint Pain, Fractures, Arthritis & Sports Injuries.""",
+            "is_instant": True
+        }
+        
+    if "audiologist" in msg:
+        return {
+            "status": "tier_0_success",
+            "reply": """### 👂 Audiologist & Hearing Specialist Timings & Services
+
+- **Doctor:** Dr. Sara Tariq
+- **Timings:** Monday, Wednesday, Saturday (4:00 PM – 8:00 PM)
+- **Services:** Hearing Tests (Audiometry), Tinnitus Treatment & Hearing Aids Fitting.""",
+            "is_instant": True
+        }
+        
+    if "cardiologist" in msg:
+        return {
+            "status": "tier_0_success",
+            "reply": """### ❤️ Cardiologist Timings & Services
+
+- **Doctor:** Dr. Usman Ali
+- **Timings:** Tuesday, Thursday, Friday (6:00 PM – 9:00 PM)
+- **Services:** Heart Health, ECG Review, Chest Pain & Hypertension.""",
+            "is_instant": True
+        }
+
+    # Doctors & Timings Keywords (Generic)
+    if any(k in msg for k in ["timing", "hours", "doctor", "specialist"]):
+        return {
+            "status": "tier_0_success",
+            "reply": """### 👨‍⚕️ Available Doctors & Timings
+
+We have specialists available in 4 key medical fields:
+
+| Doctor & Specialization | Timings | Services Offered |
+| :--- | :--- | :--- |
+| **Dr. Ahmed Khan**<br>General Physician (MBBS) | Monday to Saturday<br>(9:00 AM – 1:00 PM) | Routine Checkups, Fever, Flu, Blood Pressure & Diabetes Management. |
+| **Dr. Bilal Mehmood**<br>Orthopedic Specialist | Monday to Friday<br>(2:00 PM – 6:00 PM) | Joint Pain, Fractures, Arthritis & Sports Injuries. |
+| **Dr. Sara Tariq**<br>Audiologist & Hearing Specialist | Monday, Wednesday, Saturday<br>(4:00 PM – 8:00 PM) | Hearing Tests (Audiometry), Tinnitus Treatment & Hearing Aids Fitting. |
+| **Dr. Usman Ali**<br>Cardiologist | Tuesday, Thursday, Friday<br>(6:00 PM – 9:00 PM) | Heart Health, ECG Review, Chest Pain & Hypertension. |""",
+            "is_instant": True
+        }
+
+    # Services Keywords (Generic)
+    if any(k in msg for k in ["service", "checkup"]):
+        return {
+            "status": "tier_0_success",
+            "reply": """### 🩺 Our Services
+
+E-Clinix provides high-quality consultations across various specialties. Here are the services offered by our specialists:
+
+1. **General Medicine (Dr. Ahmed Khan):**
+   - Routine Checkups, Fever, Flu, Blood Pressure & Diabetes Management.
+2. **Orthopedics (Dr. Bilal Mehmood):**
+   - Joint Pain, Fractures, Arthritis & Sports Injuries.
+3. **Audiology & Hearing (Dr. Sara Tariq):**
+   - Hearing Tests (Audiometry), Tinnitus Treatment & Hearing Aids Fitting.
+4. **Cardiology (Dr. Usman Ali):**
+   - Heart Health, ECG Review, Chest Pain & Hypertension.""",
+            "is_instant": True
+        }
+
+    return None
+
+
+# ============================================================
 # Chat Endpoint
 # ============================================================
 
@@ -167,6 +280,11 @@ async def chat_with_doctor(request: ChatRequest):
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"}
         )
+
+    # ── TIER 0: FAQ Interceptor ────────────────────────────────────────────
+    faq_response = check_tier_0_faq(last_message_raw)
+    if faq_response:
+        return faq_response
 
     message_lower = last_message_raw.lower()
     requested_temperature = request.temperature if request.temperature is not None else 0.8
